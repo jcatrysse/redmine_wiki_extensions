@@ -14,6 +14,11 @@ ko:
   field_sidebar_disabled: "사이드 바 금지"
   wiki_extensions_vote: "투표"
 
+  label_wikiextensions_tag_dropdown_options: "태그 드롭다운 기본 옵션"
+  text_wikiextensions_tag_dropdown_options: "한 줄에 하나의 태그를 입력하세요. 비워 두면 플러그인 기본값을 사용합니다."
+  label_wikiextensions_project_tag_dropdown_options: "프로젝트 태그 드롭다운 옵션"
+  text_wikiextensions_project_tag_dropdown_options: "한 줄에 하나의 태그를 입력하세요. 비워 두면 전역 기본값을 사용합니다."
+
   
   wiki_page_commented_header: '"%{project_name}" 프로젝트의 "%{page_title}" 위키 페이지의 설명이 %{author}에 의해 추가 되었습니다.'
   wiki_page_commented_comment_head: "설명:"

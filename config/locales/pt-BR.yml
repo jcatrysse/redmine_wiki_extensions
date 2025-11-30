@@ -14,7 +14,12 @@ pt-BR:
   field_sidebar_disabled: Disable side bar
   wiki_extensions_vote: vote
 
-  
+  label_wikiextensions_tag_dropdown_options: "Opções padrão da lista suspensa de etiquetas"
+  text_wikiextensions_tag_dropdown_options: "Uma etiqueta por linha. Deixe em branco para usar os padrões do plugin."
+  label_wikiextensions_project_tag_dropdown_options: "Opções da lista suspensa de etiquetas do projeto"
+  text_wikiextensions_project_tag_dropdown_options: "Uma etiqueta por linha. Deixe em branco para usar os padrões globais."
+
+
   wiki_page_commented_header: Comment to wiki page "%{page_title}" of project "%{project_name}" added by user %{author}
   wiki_page_commented_comment_head: 'Comment:'
   wiki_page_commented_url: 'You can see page with comment by the following link:'

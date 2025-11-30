@@ -38,8 +38,12 @@ Redmine::Plugin.register :redmine_wiki_extensions do
   author_url 'http://twitter.com/haru_iida'
   description 'This is a Wiki Extensions plugin for Redmine'
   url 'http://www.r-labs.org/projects/r-labs/wiki/Wiki_Extensions_en'
-  version '0.9.5'
+  version '0.9.6'
   requires_redmine :version_or_higher => '4.0.0'
+
+  settings :default => {
+    'tag_dropdown_options' => "draft\nin-review\napproved\narchived\nobsolete\nneeds-update"
+  }, :partial => 'settings/wiki_extensions'
 
   project_module :wiki_extensions do
     permission :wiki_extensions_vote, { :wiki_extensions => [:vote, :show_vote] }, :public => true

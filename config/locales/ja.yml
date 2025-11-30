@@ -13,6 +13,11 @@ ja:
   field_sidebar_disabled: サイドバーを無効にする
   wiki_extensions_vote: 投票
 
+  label_wikiextensions_tag_dropdown_options: "タグドロップダウンのデフォルトオプション"
+  text_wikiextensions_tag_dropdown_options: "1 行に 1 つのタグを入力します。空欄の場合はプラグインのデフォルトを使用します。"
+  label_wikiextensions_project_tag_dropdown_options: "プロジェクトのタグドロップダウンオプション"
+  text_wikiextensions_project_tag_dropdown_options: "1 行に 1 つのタグを入力します。空欄の場合はグローバルデフォルトを使用します。"
+
 
   
   wiki_page_commented_header: プロジェクト"%{project_name}"のWikiページ "%{page_title}" へのコメントが %{author}によって追加されました。

@@ -13,8 +13,13 @@ sv:
   field_auto_preview_enabled: Aktivera automatisk förhandsgranskning
   field_sidebar_disabled: Disable side bar
   wiki_extensions_vote: vote
-  
-    
+
+  label_wikiextensions_tag_dropdown_options: "Standardalternativ för taggrullgardinsmenyn"
+  text_wikiextensions_tag_dropdown_options: "En tagg per rad. Lämna tomt för att använda insticksprogrammets standardvärden."
+  label_wikiextensions_project_tag_dropdown_options: "Projektets taggrullgardinsalternativ"
+  text_wikiextensions_project_tag_dropdown_options: "En tagg per rad. Lämna tomt för att använda de globala standardvärdena."
+
+
   wiki_page_commented_header: Comment to wiki page "%{page_title}" of project "%{project_name}" added by user %{author}
   wiki_page_commented_comment_head: 'Comment:'
   wiki_page_commented_url: 'You can see page with comment by the following link:'

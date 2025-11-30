@@ -26,6 +26,10 @@ class WikiExtensionsSettingsController < ApplicationController
     setting = WikiExtensionsSetting.find_or_create @project.id
     begin
       setting.transaction do
+        if params[:setting]
+          setting.tag_dropdown_options = params[:setting].permit(:tag_dropdown_options)[:tag_dropdown_options]
+          setting.save!
+        end
         menus.each_pair {|menu_no, menu|
           menu_setting = WikiExtensionsMenu.find_or_create(@project.id, menu[:menu_no].to_i)
           menu_setting.enabled = false

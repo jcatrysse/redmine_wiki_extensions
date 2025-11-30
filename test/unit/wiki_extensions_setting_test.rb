@@ -20,6 +20,10 @@ require File.dirname(__FILE__) + '/../test_helper'
 class WikiExtensionsSettingTest < ActiveSupport::TestCase
   fixtures :wiki_extensions_settings, :wiki_extensions_menus
 
+  def setup
+    Setting.plugin_redmine_wiki_extensions = Setting.plugin_redmine_wiki_extensions.merge({})
+  end
+
   def test_find_or_create
     assert(!WikiExtensionsSetting.find_by_project_id(5))
     setting = WikiExtensionsSetting.find_or_create(5)
@@ -32,5 +36,19 @@ class WikiExtensionsSettingTest < ActiveSupport::TestCase
   def test_menus
     setting = WikiExtensionsSetting.find_or_create(6)
     assert_equal(5, setting.menus.length)
+  end
+
+  def test_tag_dropdown_options_default_and_project_override
+    project = Project.find(1)
+
+    Setting.plugin_redmine_wiki_extensions = { 'tag_dropdown_options' => "global-one\nglobal-two" }
+    options = WikiExtensionsUtil.tag_dropdown_options(project)
+    assert_equal(%w(global-one global-two), options)
+
+    setting = WikiExtensionsSetting.find_or_create(project.id)
+    setting.update(:tag_dropdown_options => "project-one\nproject-two")
+
+    options = WikiExtensionsUtil.tag_dropdown_options(project)
+    assert_equal(%w(project-one project-two), options)
   end
 end

@@ -1,0 +1,10 @@
+<%# Wiki Extensions plugin for Redmine %>
+<p>
+  <%= content_tag(:label, l(:label_wikiextensions_tag_dropdown_options), :for => 'settings_tag_dropdown_options') %><br/>
+  <%= text_area_tag 'settings[tag_dropdown_options]',
+                    Setting.plugin_redmine_wiki_extensions['tag_dropdown_options'],
+                    :rows => 6,
+                    :cols => 60 %>
+  <br/>
+  <em><%= l(:text_wikiextensions_tag_dropdown_options) %></em>
+</p>

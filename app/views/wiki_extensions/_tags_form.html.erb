@@ -34,7 +34,7 @@
    <%
        i = 0
        maxline = 5
-       tag_options = ['', 'draft', 'in-review', 'approved', 'archived', 'obsolete', 'needs-update']
+       tag_options = WikiExtensionsUtil.tag_dropdown_options_with_blank(@project)
     %>
     <%
        maxline.times { |line|

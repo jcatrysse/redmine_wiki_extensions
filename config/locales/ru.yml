@@ -13,7 +13,12 @@ ru:
   field_auto_preview_enabled: Enable auto preview
   field_sidebar_disabled: Disable side bar
   wiki_extensions_vote: vote
-  
+
+  label_wikiextensions_tag_dropdown_options: "Настройки по умолчанию для выпадающего списка тегов"
+  text_wikiextensions_tag_dropdown_options: "По одному тегу на строку. Оставьте пустым, чтобы использовать значения плагина по умолчанию."
+  label_wikiextensions_project_tag_dropdown_options: "Параметры выпадающего списка тегов проекта"
+  text_wikiextensions_project_tag_dropdown_options: "По одному тегу на строку. Оставьте пустым, чтобы использовать глобальные значения по умолчанию."
+
   # Wiki comments notification
   wiki_page_commented_header: Вики-страница "%{page_title}" проекта "%{project_name}" прокомментированна пользователем %{author}
   wiki_page_commented_comment_head: 'Комментарий:'

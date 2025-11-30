@@ -1,0 +1,30 @@
+# Dutch strings go
+nl:
+  label_wikiextensions_tags: Tags
+  label_wikiextensions_new: Nieuw
+  wiki_extensions: Wiki-extensies
+  label_wikiextensions_tab: Tab
+  wiki_extensions_add_tab: "Tabbladen toevoegen aan het projectmenu."
+  permission_add_wiki_comment: Wiki-opmerkingen toevoegen
+  permission_delete_wiki_comments: Wiki-opmerkingen verwijderen
+  permission_edit_wiki_comments: Wiki-opmerkingen bewerken
+  permission_wiki_extensions_settings: Wiki-extensies beheren
+
+  field_auto_preview_enabled: Automatische preview inschakelen
+  field_sidebar_disabled: Zijbalk uitschakelen
+  wiki_extensions_vote: stemmen
+
+  label_wikiextensions_tag_dropdown_options: "Standaardopties voor tagkeuzelijst"
+  text_wikiextensions_tag_dropdown_options: "Eén tag per regel. Laat leeg om de plug-in-standaard te gebruiken."
+  label_wikiextensions_project_tag_dropdown_options: "Projectopties voor tagkeuzelijst"
+  text_wikiextensions_project_tag_dropdown_options: "Eén tag per regel. Laat leeg om de globale standaard te gebruiken."
+
+  # Wiki comments notification
+  wiki_page_commented_header: "Opmerking bij wikipagina \"%{page_title}\" van project \"%{project_name}\" toegevoegd door gebruiker %{author}"
+  wiki_page_commented_comment_head: 'Opmerking:'
+  wiki_page_commented_url: 'Je kunt de pagina met de opmerking bekijken via de volgende link:'
+  label_wiki_comment_added: 'Wikireactie toegevoegd'
+  label_wiki_comment_plural: 'Wikireacties'
+
+  wiki_extensions_new_wiki_page: 'Nieuwe pagina'
+  field_tag_disabled: 'Tagfunctie uitschakelen'

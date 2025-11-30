@@ -13,7 +13,12 @@ de:
   field_auto_preview_enabled: Automatische Vorschau aktivieren
   field_sidebar_disabled: Sidebar deaktivieren
   wiki_extensions_vote: vote
-  
+
+  label_wikiextensions_tag_dropdown_options: "Standardoptionen für Tag-Dropdown"
+  text_wikiextensions_tag_dropdown_options: "Ein Tag pro Zeile. Leer lassen, um die Plugin-Standards zu verwenden."
+  label_wikiextensions_project_tag_dropdown_options: "Projekt-Tag-Dropdown-Optionen"
+  text_wikiextensions_project_tag_dropdown_options: "Ein Tag pro Zeile. Leer lassen, um die globalen Standards zu verwenden."
+
   
   wiki_page_commented_header: Kommentar zur Wiki-Seite "%{page_title}" des Projektes "%{project_name}" hinzugefügt von %{author}
   wiki_page_commented_comment_head: 'Kommentar:'
