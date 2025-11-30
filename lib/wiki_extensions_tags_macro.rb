@@ -62,4 +62,112 @@ module WikiExtensionsTagsMacro
       return o.html_safe
     end
   end
+
+  Redmine::WikiFormatting::Macros.register do
+    desc "Displays taglist.\n\n" \
+           "  {{taglist}}\n" \
+           "  {{taglist_commas}}\n" \
+           "  {{taglist_bullets}}\n"
+
+    classes = %w(tag_level1 tag_level2 tag_level3 tag_level4 tag_level5)
+
+    # 1. Basis: met newline
+    macro :taglist do |obj, args|
+      page    = obj.respond_to?(:page) ? obj.page : nil
+      project = page&.project || @project
+
+      next '' unless project
+      next '' unless WikiExtensionsUtil.is_enabled?(project)
+      next '' unless WikiExtensionsUtil.tag_enabled?(project)
+
+      tags = WikiExtensionsTag.where(project_id: project.id).to_a
+      next '' if tags.empty?
+
+      max_count = tags.max_by(&:page_count).page_count.to_f
+
+      links = tags.sort_by(&:name).map do |tag|
+        index =
+          if max_count.zero?
+            0
+          else
+            ((tag.page_count / max_count) * (classes.size - 1)).round
+          end
+        index = [[index, 0].max, classes.size - 1].min
+
+        link_to(
+          "#{tag.name}(#{tag.page_count})",
+          { controller: 'wiki_extensions', action: 'tag', id: project, tag_id: tag.id }
+        )
+      end
+
+      links.join("<br/>\n").html_safe
+    end
+
+    # 2. Variant met komma gescheiden lijst
+    #    {{taglist_commas}}
+    macro :taglist_commas do |obj, args|
+      page    = obj.respond_to?(:page) ? obj.page : nil
+      project = page&.project || @project
+
+      next '' unless project
+      next '' unless WikiExtensionsUtil.is_enabled?(project)
+      next '' unless WikiExtensionsUtil.tag_enabled?(project)
+
+      tags = WikiExtensionsTag.where(project_id: project.id).to_a
+      next '' if tags.empty?
+
+      max_count = tags.max_by(&:page_count).page_count.to_f
+
+      links = tags.sort_by(&:name).map do |tag|
+        index =
+          if max_count.zero?
+            0
+          else
+            ((tag.page_count / max_count) * (classes.size - 1)).round
+          end
+        index = [[index, 0].max, classes.size - 1].min
+
+        link_to(
+          "#{tag.name}(#{tag.page_count})",
+          { controller: 'wiki_extensions', action: 'tag', id: project, tag_id: tag.id }
+        )
+      end
+
+      links.join(', ').html_safe
+    end
+
+    # 3. Variant met markdown bullets
+    #    {{taglist_bullets}}
+    macro :taglist_bullets do |obj, args|
+      page    = obj.respond_to?(:page) ? obj.page : nil
+      project = page&.project || @project
+
+      next '' unless project
+      next '' unless WikiExtensionsUtil.is_enabled?(project)
+      next '' unless WikiExtensionsUtil.tag_enabled?(project)
+
+      tags = WikiExtensionsTag.where(project_id: project.id).to_a
+      next '' if tags.empty?
+
+      max_count = tags.max_by(&:page_count).page_count.to_f
+
+      items = tags.sort_by(&:name).map do |tag|
+        index =
+          if max_count.zero?
+            0
+          else
+            ((tag.page_count / max_count) * 4).round
+          end
+
+        link = link_to(
+          "#{tag.name}(#{tag.page_count})",
+          { controller: 'wiki_extensions', action: 'tag', id: project, tag_id: tag.id }
+        )
+
+        "<li>#{link}</li>"
+      end
+
+      "<ul>\n#{items.join("\n")}\n</ul>".html_safe
+    end
+  end
 end

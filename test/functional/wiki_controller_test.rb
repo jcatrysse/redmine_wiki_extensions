@@ -128,10 +128,13 @@ class WikiControllerTest < ActionController::TestCase
     page.save!
     text = "{{tags}}\n"
     text << "{{tagcloud}}\n"
+    text << "{{taglist}}\n"
     setContent(text)
     @request.session[:user_id] = 1
     get :show, :params => { :project_id => 1, :id => @page_name }
     assert_response :success
+    assert_includes response.body, "MyString (2)"
+    assert_includes response.body, "MyString2 (0)"
   end
 
   def test_wiki

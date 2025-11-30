@@ -31,9 +31,10 @@
 
 <label><%= l(:label_wikiextensions_tags) %></label>
 <span>
-    <%
+   <%
        i = 0
        maxline = 5
+       tag_options = ['', 'draft', 'in-review', 'approved', 'archived', 'obsolete', 'needs-update']
     %>
     <%
        maxline.times { |line|
@@ -47,8 +48,12 @@
              value = 'value="' + tags[i].name + '"' if tags[i]
         %>
   <span class="tag_field">
-  <input id="extension_tags[<%= i.to_s %>]" type="text" size="20" name="extension[tags][<%= i.to_s %>]"
-         <%= raw value %> class="wikiext_tag_inputs"/>
+  <% if i == 0 %>
+    <%= select_tag "extension[tags][#{i}]", options_for_select(tag_options, tags[i]&.name), :id => "extension_tags[#{i}]" %>
+  <% else %>
+    <input id="extension_tags[<%= i.to_s %>]" type="text" size="20" name="extension[tags][<%= i.to_s %>]"
+           <%= raw value %> class="wikiext_tag_inputs"/>
+  <% end %>
       </span>
         <%
            i = i + 1
