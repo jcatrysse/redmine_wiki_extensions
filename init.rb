@@ -23,10 +23,6 @@ require 'redmine/wiki_formatting/textile/redcloth3'
 
 $LOAD_PATH.unshift "#{File.dirname(__FILE__)}/lib"
 
-Rails.configuration.to_prepare do
-  WikiExtensionsProjectsHelperPatch.apply
-end
-
 require_dependency 'wiki_extensions_notifiable_patch'
 Dir::foreach(File.join(File.dirname(__FILE__), 'lib')) do |file|
   next unless /\.rb$/ =~ file

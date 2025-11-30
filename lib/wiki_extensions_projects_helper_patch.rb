@@ -1,5 +1,5 @@
 # Wiki Extensions plugin for Redmine
-# Copyright (C) 2009-2021  Haruyuki Iida
+# Copyright (C) 2009-  Haruyuki Iida
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,21 +18,35 @@
 require_dependency 'projects_helper'
 
 module WikiExtensionsProjectsHelperPatch
-  def self.apply
-    ProjectsController.send :helper, WikiExtensionsProjectsHelperPatch
+  def self.included(base)
+    base.send(:include, InstanceMethods)
+
+    base.class_eval do
+      alias_method :project_settings_tabs_without_wiki_extensions, :project_settings_tabs
+      alias_method :project_settings_tabs, :project_settings_tabs_with_wiki_extensions
+    end
   end
-  def project_settings_tabs
-    tabs = super
-    action = {:name => 'wiki_extensions', 
-      :controller => 'wiki_extensions_settings', 
-      :action => :show, 
-      :partial => 'wiki_extensions_settings/show', 
-      :label => :wiki_extensions}
 
-    tabs << action if User.current.allowed_to?(action, @project)
+  module InstanceMethods
+    def project_settings_tabs_with_wiki_extensions
+      tabs = project_settings_tabs_without_wiki_extensions
 
-    tabs
+      wiki_extensions_tabs = []
+      wiki_extensions_tabs.push({
+                                  :name       => 'wiki_extensions',
+                                  :controller => 'wiki_extensions_settings',
+                                  :action     => :show,
+                                  :partial    => 'wiki_extensions_settings/show',
+                                  :label      => :wiki_extensions
+                                })
+      wiki_extensions_tabs.each do |tab|
+        tabs << tab if User.current.allowed_to?(:wiki_extensions_settings, @project)
+      end
+      tabs
+    end
   end
 end
 
-
+unless ProjectsHelper.included_modules.include?(WikiExtensionsProjectsHelperPatch)
+  ProjectsHelper.send(:include, WikiExtensionsProjectsHelperPatch)
+end
