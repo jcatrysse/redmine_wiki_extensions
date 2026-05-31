@@ -41,3 +41,26 @@ module WikiExtensionsFormatterPatch
 end
 
 Redmine::WikiFormatting::Textile::Formatter.prepend(WikiExtensionsFormatterPatch)
+
+begin
+  require_dependency "redmine/wiki_formatting/common_mark/formatter"
+
+  module WikiExtensionsCommonMarkFormatterPatch
+    def to_html(*rules)
+      html = super
+      emoticon_path = WikiExtensionsFormatterPatch::WikiExtentionEmoticonPath.new
+      WikiExtensionsEmoticons::Emoticons.new.emoticons.each do |emoticon|
+        src = emoticon_path.get_emoticon_path(emoticon["image"])
+        html = html.gsub(
+          Regexp.new("#{Regexp.escape(emoticon["emoticon"])}(\\s|<br\\s*/?>|</p>)"),
+          "<img src=\"#{src}\" alt=\"#{emoticon["emoticon"]}\">\\1"
+        )
+      end
+      html
+    end
+  end
+
+  Redmine::WikiFormatting::CommonMark::Formatter.prepend(WikiExtensionsCommonMarkFormatterPatch)
+rescue LoadError
+  # CommonMark formatter not available in this Redmine installation
+end
