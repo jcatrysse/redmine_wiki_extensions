@@ -34,10 +34,8 @@ module WikiExtensionsFormatterPatch
   end
 
   class WikiExtentionEmoticonPath
-    include Rails.application.routes.url_helpers
-
     def get_emoticon_path(emoticon)
-      wiki_extensions_emoticon_path(emoticon)
+      Rails.application.routes.url_helpers.wiki_extensions_emoticon_path(emoticon)
     end
   end
 end
