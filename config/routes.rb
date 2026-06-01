@@ -16,6 +16,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 RedmineApp::Application.routes.draw do
+  get '/wiki_extentions/emoticon/:icon_name',
+      to: 'wiki_extensions#emoticon',
+      as: 'wiki_extensions_emoticon'
+
   scope 'projects/:id', as: 'project' do
     match 'wiki_extensions/stylesheet', to: 'wiki_extensions#stylesheet', via: [:get, :post], as: 'wiki_extensions_stylesheet'
 

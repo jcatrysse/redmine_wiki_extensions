@@ -34,12 +34,42 @@ module WikiExtensionsFormatterPatch
   end
 
   class WikiExtentionEmoticonPath
-    include Rails.application.routes.url_helpers
-
     def get_emoticon_path(emoticon)
-      wiki_extensions_emoticon_path(emoticon)
+      Rails.application.routes.url_helpers.wiki_extensions_emoticon_path(emoticon)
     end
   end
 end
 
 Redmine::WikiFormatting::Textile::Formatter.prepend(WikiExtensionsFormatterPatch)
+
+begin
+  require_dependency "redmine/wiki_formatting/common_mark/formatter"
+
+  module WikiExtensionsCommonMarkFormatterPatch
+    def to_html(*rules)
+      html = super
+
+      # Preserve the original encoding and ensure we operate in UTF-8.
+      # CommonMark may return ASCII-8BIT; gsub on a binary string that
+      # contains multi-byte UTF-8 sequences (e.g. → U+2192) would
+      # corrupt those sequences if the replacement string re-encodes them.
+      original_encoding = html.encoding
+      html = html.encode('UTF-8') unless html.encoding == Encoding::UTF_8
+
+      emoticon_path = WikiExtensionsFormatterPatch::WikiExtentionEmoticonPath.new
+      WikiExtensionsEmoticons::Emoticons.new.emoticons.each do |emoticon|
+        src = emoticon_path.get_emoticon_path(emoticon["image"])
+        html = html.gsub(
+          Regexp.new("#{Regexp.escape(emoticon["emoticon"])}(\\s|<br\\s*/?>|</p>)"),
+          "<img src=\"#{src}\" alt=\"#{emoticon["emoticon"]}\">\\1"
+        )
+      end
+
+      html.encoding == original_encoding ? html : html.encode(original_encoding)
+    end
+  end
+
+  Redmine::WikiFormatting::CommonMark::Formatter.prepend(WikiExtensionsCommonMarkFormatterPatch)
+rescue LoadError
+  # CommonMark formatter not available in this Redmine installation
+end
