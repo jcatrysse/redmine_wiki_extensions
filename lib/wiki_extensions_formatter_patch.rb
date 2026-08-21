@@ -18,7 +18,13 @@
 require_dependency "redmine/wiki_formatting/textile/formatter"
 
 module WikiExtensionsFormatterPatch
-  Redmine::WikiFormatting::Textile::Formatter::RULES << :inline_smiles
+  # PATCHED for Redmine 7.0. `Textile::Formatter::RULES` no longer exists there — the
+  # textile formatter was reworked and the RULES array went with it — so this line was a
+  # `NameError` at boot and took the whole application down. Guarded rather than deleted:
+  # on 5.1 and 6.x the constant is present and the emoticon rule still registers.
+  if defined?(Redmine::WikiFormatting::Textile::Formatter::RULES)
+    Redmine::WikiFormatting::Textile::Formatter::RULES << :inline_smiles
+  end
 
   private
 
