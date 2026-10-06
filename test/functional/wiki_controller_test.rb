@@ -133,8 +133,36 @@ class WikiControllerTest < ActionController::TestCase
     @request.session[:user_id] = 1
     get :show, params: { project_id: 1, id: @page_name }
     assert_response :success
-    assert_includes response.body, "MyString (2)"
-    assert_includes response.body, "MyString2 (0)"
+    count = WikiExtensionsTag.find(1).page_count
+    assert_operator count, :>, 0
+    # the macros write "name(count)", without a space
+    assert_includes response.body, "MyString(#{count})"
+    assert_includes response.body, "MyString2(0)"
+  end
+
+  def test_taglist_variants
+    page = @wiki.find_or_new_page(@page_name)
+    page.wiki_ext_tags << WikiExtensionsTag.find(1)
+    page.save!
+    count = WikiExtensionsTag.find(1).page_count
+    link1 = %r{<a href="/projects/ecookbook/wiki_extensions/tag\?tag_id=1">MyString\(#{count}\)</a>}
+    link2 = %r{<a href="/projects/ecookbook/wiki_extensions/tag\?tag_id=2">MyString2\(0\)</a>}
+    @request.session[:user_id] = 1
+
+    setContent("{{taglist}}\n")
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    assert_match(/#{link1}<br\/>\n#{link2}/, response.body)
+
+    setContent("{{taglist_commas}}\n")
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    assert_match(/#{link1}, #{link2}/, response.body)
+
+    setContent("{{taglist_bullets}}\n")
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    assert_match(/<ul>\n<li>#{link1}<\/li>\n<li>#{link2}<\/li>\n<\/ul>/, response.body)
   end
 
   def test_wiki
