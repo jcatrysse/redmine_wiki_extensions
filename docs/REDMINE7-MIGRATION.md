@@ -76,14 +76,14 @@ preinstalled Chromium is revision 1194, so Playwright 1.56.1 (not the latest) is
 
 These GEOxyz commits are on the branch GEOxyz runs today and therefore on this branch. Review each one against the code it now sits on (upstream merges and Redmine 7 core): drop it if upstream or core now does the same, rewrite it if it is not up to the quality rules below (tests, I18n, security, portability), keep it otherwise. Record the verdict per commit in this file.
 
-| commit | date | subject |
-|---|---|---|
-| `e0b64b3` | 2026-05-31 | Add emoticon support for CommonMark formatter |
-| `46ffc27` | 2026-05-31 | Fix emoticon route missing and url_helpers load-order issue |
-| `3a2caa6` | 2025-11-30 | Feature: configurable settings |
-| `842d27f` | 2025-11-30 | Feature: additional macro's |
-| `ff3dba7` | 2025-11-30 | Defect: dynamic :action segment in a route is deprecated |
-| `5e60148` | 2025-11-30 | Defect: fix setting tab is not displayed (alias_method) |
+| commit | date | subject | verdict |
+|---|---|---|---|
+| `e0b64b3` | 2026-05-31 | Add emoticon support for CommonMark formatter | KEEP. Still needed (upstream has Textile emoticons only). Tests added in `794c15a`. |
+| `46ffc27` | 2026-05-31 | Fix emoticon route missing and url_helpers load-order issue | KEEP. Upstream now declares the same emoticon route; the render-time `url_helpers` call stays. Tested in `794c15a`. |
+| `3a2caa6` | 2025-11-30 | Feature: configurable settings | KEEP, reworked: migration renamed to a timestamp (`469ff2f`), YARD docs (`9a6ae0c`), POST without menus no longer a 500 (`efaad26`), its broken test fixed (`1fba7e5`). Locales: all 15 carry its keys. |
+| `842d27f` | 2025-11-30 | Feature: additional macro's | KEEP, fixed: a first tag that is not a dropdown option was silently deleted on save (`f1ec112`), comments translated to English, test fixed and tightened (`1fba7e5`). |
+| `ff3dba7` | 2025-11-30 | Defect: dynamic :action segment in a route is deprecated | KEEP (explicit routes, no Rails 9 deprecation), fixed: it made `vote` POST-only while the macro sent GET, so every vote was a 404 (`2a3243c`); routing test added. |
+| `5e60148` | 2025-11-30 | Defect: fix setting tab is not displayed (alias_method) | DROP: superseded by upstream's `ProjectsHelper.prepend` with the same permission check (from the merge). Tests prove the tab (`8bd2ae5`). |
 
 ## After the upgrade (production)
 
