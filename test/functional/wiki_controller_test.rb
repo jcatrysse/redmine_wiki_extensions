@@ -65,6 +65,35 @@ class WikiControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  def test_comment_form_loads_the_wiki_toolbar
+    with_settings text_formatting: "common_mark" do
+      setContent("{{comment_form}}")
+      @request.session[:user_id] = 1
+      get :show, params: { project_id: 1, id: @page_name }
+      assert_response :success
+      assert_select "form[action=?] textarea.wiki-edit[name=comment]", "/projects/ecookbook/wiki_extensions/add_comment"
+      # the toolbar script draws new jsToolBar(...); its library must be in the head
+      assert_select "script", text: /new jsToolBar\(document.getElementById\('add_comment_area_\d+'\)\)/
+      assert_select "head script[src*=?]", "jstoolbar/jstoolbar"
+    end
+  end
+
+  def test_comment_form_in_pdf_export
+    setContent("{{comment_form}}\n\ntext")
+    @request.session[:user_id] = 1
+    get :show, params: { project_id: 1, id: @page_name, format: "pdf" }
+    assert_response :success
+    assert_equal "application/pdf", response.media_type
+  end
+
+  def test_comment_form_hidden_without_permission
+    Role.anonymous.remove_permission!(:add_wiki_comment)
+    setContent("{{comment_form}}")
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    assert_select "textarea[name=comment]", 0
+  end
+
   def test_comments
     text = "{{comments}}"
     setContent(text)

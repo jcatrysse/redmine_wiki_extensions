@@ -32,6 +32,10 @@ module WikiExtensionsComments
       area_id = "add_comment_area_#{num}"
       div_id = "add_comment_form_div#{num}"
 
+      # The partial is rendered by the controller, so the toolbar's head tags
+      # (content_for :header_tags) would land in another view; add them to
+      # this one, when there is one (not in a PDF export).
+      heads_for_wiki_formatter if respond_to?(:content_for)
       o = @_controller.send(:render_to_string, { partial: "wiki_extensions/comment_form", locals: { page: page, area_id: area_id, div_id: div_id } })
       raw o.html_safe
     end
