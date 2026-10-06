@@ -30,9 +30,7 @@ class WikiExtensionsController < ApplicationController
     comment.wiki_page_id = page.id
     comment.user_id = @user.id
     comment.comment = params[:comment]
-    comment.save
-    # Send email-notification to watchers of wiki page
-    WikiExtensionsCommentsMailer.deliver_wiki_commented(comment, page) if Setting.notified_events.include? "wiki_comment_added"
+    notify_or_report(comment, page)
     redirect_to controller: "wiki", action: "show", project_id: @project, id: page.title
   end
 
@@ -48,9 +46,7 @@ class WikiExtensionsController < ApplicationController
     comment.wiki_page_id = page.id
     comment.user_id = @user.id
     comment.comment = params[:reply]
-    comment.save
-    # Send email-notification to watchers of wiki page
-    WikiExtensionsCommentsMailer.deliver_wiki_commented(comment, page) if Setting.notified_events.include? "wiki_comment_added"
+    notify_or_report(comment, page)
     redirect_to controller: "wiki", action: "show", project_id: @project, id: page.title
   end
 
@@ -150,6 +146,17 @@ class WikiExtensionsController < ApplicationController
 
   def find_user
     @user = User.current
+  end
+
+  # Saves the comment and notifies the page's watchers, or shows why it was
+  # not saved (an empty comment).
+  def notify_or_report(comment, page)
+    if comment.save
+      # Send email-notification to watchers of wiki page
+      WikiExtensionsCommentsMailer.deliver_wiki_commented(comment, page) if Setting.notified_events.include? "wiki_comment_added"
+    else
+      flash[:error] = comment.errors.full_messages.join(", ")
+    end
   end
 
   # Returns the visible page of this project's wiki named by params[:wiki_page_id],

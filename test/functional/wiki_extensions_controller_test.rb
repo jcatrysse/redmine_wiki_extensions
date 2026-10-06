@@ -184,4 +184,30 @@ class WikiExtensionsControllerTest < ActionController::TestCase
     assert_response :forbidden
     assert_equal "by jsmith", comment.reload.comment
   end
+  def test_add_comment_notifies_watchers
+    @page.add_watcher(User.find(2))
+    ActionMailer::Base.deliveries.clear
+    @request.session[:user_id] = 1
+    with_settings notified_events: %w(wiki_comment_added) do
+      post :add_comment, params: { id: 1, wiki_page_id: @page.id, comment: "watched" }
+    end
+    assert_response :redirect
+    mail = ActionMailer::Base.deliveries.detect { |m| m.to.include?("jsmith@somenet.foo") }
+    assert mail
+    assert_match(/commented/, mail.subject)
+  end
+
+  def test_add_comment_with_empty_text_saves_and_sends_nothing
+    @page.add_watcher(User.find(2))
+    ActionMailer::Base.deliveries.clear
+    @request.session[:user_id] = 1
+    with_settings notified_events: %w(wiki_comment_added) do
+      assert_no_difference "WikiExtensionsComment.count" do
+        post :add_comment, params: { id: 1, wiki_page_id: @page.id, comment: "" }
+      end
+    end
+    assert_redirected_to "/projects/ecookbook/wiki/#{@page.title}"
+    assert_equal "Comment cannot be blank", flash[:error]
+    assert_empty ActionMailer::Base.deliveries
+  end
 end
