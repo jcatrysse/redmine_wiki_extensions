@@ -1,0 +1,11 @@
+vote click: GET -> HTTP 404
+count on reload: 1 -> 1
+comment form toolbar elements: 1, JS errors: none
+delete link: href=/projects/e2e-project/wiki_extensions/destroy_comment?comment_id=1 data-method=null data-confirm=null confirm=Are you sure?
+Tagged_one edit (tags alpha, approved): dropdown value "", field 1 "approved"
+Unsafe edit: input[onfocus] = 1, dialogs: tag
+forward_wiki_page without menu_id: landed on /projects/e2e-project/wiki
+settings tabs: Tab#0, Tab#1, Tab#2, Tab#3, Tab#4, Tab#5
+Leaks as reporter: Project header from the Header page Leaks project: [E2E private] wiki: [the secret page] lastupdated_at: [Updated 5 minutes ago] taggedpages: [ Secret ] Project footer from the Footer page
+Unsafe view as reporter: img[onerror] 3, iframe[onload] 1, dialogs: fn | fn | fn | iframe
+GET destroy_comment as reporter: HTTP 403 - Redmine
