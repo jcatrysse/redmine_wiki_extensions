@@ -1,4 +1,5 @@
 # Wiki Extensions plugin for Redmine
+# Copyright (C) 2024
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,7 +19,8 @@
 # Redmine 7 migration; it got a timestamp so that a future upstream 0015
 # cannot collide with it. Databases that ran the old 0015 already have the
 # column, and their "15-redmine_wiki_extensions" row would make Redmine skip
-# an upstream 0015, so that row is removed here.
+# an upstream 0015, so that row is removed here, as long as the plugin ships
+# no migration 15 of its own (once upstream adds one, the row is its row).
 class AddTagDropdownOptions < ActiveRecord::Migration[4.2]
   LEGACY_VERSION = '15-redmine_wiki_extensions'.freeze
 
@@ -26,8 +28,10 @@ class AddTagDropdownOptions < ActiveRecord::Migration[4.2]
     unless column_exists?(:wiki_extensions_settings, :tag_dropdown_options)
       add_column(:wiki_extensions_settings, :tag_dropdown_options, :text)
     end
-    execute("DELETE FROM #{quote_table_name(ActiveRecord::Base.schema_migrations_table_name)} " \
-            "WHERE version = #{quote(LEGACY_VERSION)}")
+    if Dir.glob(File.join(__dir__, '{15,015,0015}_*.rb')).empty?
+      execute("DELETE FROM #{quote_table_name(ActiveRecord::Base.schema_migrations_table_name)} " \
+              "WHERE version = #{quote(LEGACY_VERSION)}")
+    end
   end
 
   def self.down
