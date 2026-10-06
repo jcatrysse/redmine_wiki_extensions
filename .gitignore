@@ -4,3 +4,5 @@ Gemfile.lock
 .yardoc/
 tmp/
 .claude/settings.local.json
+# Redmine checkout made by .codex/redmine_clone.sh
+/redmine/
