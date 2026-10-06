@@ -76,4 +76,16 @@ class WikiExtensionsMacroSecurityTest < ActionController::TestCase
     show("{{taggedpages(shared, project=all)}}", 1)
     assert_select "ul.wikiext-taggedpages a[href=?]", "/projects/onlinestore/wiki/Start_page"
   end
+
+  def test_footnote_word_is_escaped
+    show("A{{fn(<img src=x onerror=alert(1)>, the description)}}\n", 1)
+    assert_select "img[onerror]", 0
+    assert_includes response.body, "&lt;img src=x onerror=alert(1)&gt;"
+  end
+
+  def test_iframe_attributes_are_escaped
+    show(%({{iframe(https://example.com/x, 100" onload="alert(1), 50)}}), 1)
+    assert_select "iframe[src=?]", "https://example.com/x"
+    assert_select "iframe[onload]", 0
+  end
 end

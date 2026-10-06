@@ -40,7 +40,7 @@ module WikiExtensionsFootnote
 
 
       o = ""
-      o << word
+      o << h(word)
       o << ('<a href="#wiki_extensins_fn_' +"#{data[:footnotes].length}" + '" class="wiki_extensions_fn" title="' + h(description) + '" name="wiki_extensins_fn_src_' +"#{data[:footnotes].length}" + '">')
       o << "*#{data[:footnotes].length}"
       o << "</a>"
@@ -62,7 +62,7 @@ module WikiExtensionsFootnote
       cnt = 0
       data[:footnotes].each { |fn|
         cnt += 1
-        o << ('<li><span class="wiki_extensions_fn">'+ "*#{cnt}</span> " +'<a name="wiki_extensins_fn_' + "#{cnt}" + '" href="#wiki_extensins_fn_src_' + "#{cnt}" + '"' + ">#{fn['word']}</a>:#{h fn['description']}</li>")
+        o << ('<li><span class="wiki_extensions_fn">'+ "*#{cnt}</span> " +'<a name="wiki_extensins_fn_' + "#{cnt}" + '" href="#wiki_extensins_fn_src_' + "#{cnt}" + '"' + ">#{h fn['word']}</a>:#{h fn['description']}</li>")
       }
       o << "</ul>"
       o << "</div>"

@@ -30,8 +30,8 @@ module WikiExtensionsIframeMacro
       url = /([a-zA-Z0-9]+:\/\/[-a-zA-Z0-9\.\?\&=\+@:_~\#\%\/\;]+)/.match(args[0]).to_a[1]
       url = url.gsub(/\&#38;/, "&")
       o = ""
-      o << ('<iframe src="' + url + '" style="border: 0" width="' + width +
-        '" height="' + height + '" frameborder="0" scrolling="' + scrolling + '"></iframe>')
+      o << ('<iframe src="' + url + '" style="border: 0" width="' + h(width) +
+        '" height="' + h(height) + '" frameborder="0" scrolling="' + h(scrolling) + '"></iframe>')
 
       return o.html_safe
     end
