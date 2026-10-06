@@ -22,7 +22,7 @@ assert.equal(await w.locator('#boxed.wikiext-e2e-box').count(), 1, 'div_start_ta
 assert.equal(await w.locator('ol.wikiext-popularity li').count() >= 1, true, 'popularity lists the counted page');
 assert.equal(await w.locator('.wiki_extensions_recent a').count() >= 5, true, 'recent lists pages');
 assert.equal(await w.locator('.wikiext-page-break').count(), 1);
-assert.equal(await w.locator('iframe[src="http://127.0.0.1:3000/robots.txt"][width="300"]').count(), 1);
+assert.equal(await w.locator(`iframe[src="${t.BASE}/robots.txt"][width="300"]`).count(), 1);
 assert.equal(await w.locator('video[width="160"][height="90"][controls]').count(), 1);
 assert.equal(await w.getByText('New page', { exact: true }).count(), 1, 'new_page link');
 // {{count}} counts a page once per session (it counted every view on Redmine 7)

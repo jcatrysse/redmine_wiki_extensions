@@ -41,6 +41,9 @@ def e2e_page(project, title, text, author)
 end
 
 today = Date.today
+# same origin as the server under test: cookies ignore the port, so a frame on
+# another local Redmine would replace this one's session cookie
+base = "http://127.0.0.1:#{ENV.fetch('RMP_PORT', '3000')}"
 e2e_page(project, 'Macros', <<~TEXT, admin)
   # Macros
 
@@ -68,9 +71,9 @@ e2e_page(project, 'Macros', <<~TEXT, admin)
 
   **page_break**: {{page_break}}
 
-  **iframe**: {{iframe(http://127.0.0.1:3000/robots.txt, 300, 40)}}
+  **iframe**: {{iframe(#{base}/robots.txt, 300, 40)}}
 
-  **video_tag**: {{video_tag(http://127.0.0.1:3000/missing.mp4, 160, 90)}}
+  **video_tag**: {{video_tag(#{base}/missing.mp4, 160, 90)}}
 
   **new_page**: {{new_page}}
 TEXT
@@ -141,7 +144,7 @@ unsafe = e2e_page(project, 'Unsafe', <<~TEXT, admin)
 
   footnote: X{{fn(<img src=x onerror=alert('fn')>, description)}}
 
-  iframe: {{iframe(http://127.0.0.1:3000/robots.txt, 100" onload="alert('iframe'), 40)}}
+  iframe: {{iframe(#{base}/robots.txt, 100" onload="alert('iframe'), 40)}}
 
   {{fnlist}}
 TEXT
