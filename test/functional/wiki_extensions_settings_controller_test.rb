@@ -67,4 +67,24 @@ class WikiExtensionsSettingsControllerTest < ActionController::TestCase
       assert_not(menus[1].enabled)
     end
   end
+  def test_update_saves_project_tag_dropdown_options
+    post :update, params: { id: @project, setting: { tag_dropdown_options: "one\ntwo" },
+                            menus: { "0" => { menu_no: 1 } } }
+    assert_redirected_to "/projects/ecookbook/settings/wiki_extensions"
+    assert_equal "one\ntwo", WikiExtensionsSetting.find_or_create(@project.id).tag_dropdown_options
+    assert_equal %w(one two), WikiExtensionsUtil.tag_dropdown_options(@project)
+  end
+
+  def test_update_without_menus
+    post :update, params: { id: @project, setting: { tag_dropdown_options: "solo" } }
+    assert_redirected_to "/projects/ecookbook/settings/wiki_extensions"
+    assert_equal %w(solo), WikiExtensionsUtil.tag_dropdown_options(@project)
+  end
+
+  def test_update_requires_permission
+    @request.session[:user_id] = 3 # dlopper, Developer of project 1
+    post :update, params: { id: @project, setting: { tag_dropdown_options: "nope" } }
+    assert_response :forbidden
+    assert_not_equal "nope", WikiExtensionsSetting.find_or_create(@project.id).tag_dropdown_options
+  end
 end

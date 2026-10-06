@@ -22,7 +22,7 @@ class WikiExtensionsSettingsController < ApplicationController
 
   # Saves project-level wiki extensions menu settings.
   def update
-    menus = params[:menus]
+    menus = params[:menus] || {}
 
     setting = WikiExtensionsSetting.find_or_create @project.id
     begin
