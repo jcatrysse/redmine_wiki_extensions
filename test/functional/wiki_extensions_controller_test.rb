@@ -210,4 +210,22 @@ class WikiExtensionsControllerTest < ActionController::TestCase
     assert_equal "Comment cannot be blank", flash[:error]
     assert_empty ActionMailer::Base.deliveries
   end
+  def test_tag_lists_the_tagged_pages
+    @page.set_tags("0" => "listed")
+    tag = WikiExtensionsTag.find_by(project_id: 1, name: "listed")
+    @request.session[:user_id] = 2
+    get :tag, params: { id: 1, tag_id: tag.id }
+    assert_response :success
+    assert_select "#content a[href=?]", "/projects/ecookbook/wiki/#{@page.title}"
+  end
+
+  def test_tag_of_another_project_is_not_found
+    page = WikiPage.find(3) # project 2 (private)
+    page.set_tags("0" => "secret-tag")
+    tag = WikiExtensionsTag.find_by(project_id: 2, name: "secret-tag")
+    @request.session[:user_id] = 3 # not a member of project 2
+    get :tag, params: { id: 1, tag_id: tag.id }
+    assert_response :not_found
+    assert_not_includes response.body, page.title
+  end
 end

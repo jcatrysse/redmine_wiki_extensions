@@ -17,7 +17,7 @@
 -%>
 
 <ul>
-<% for page in @tag.pages.sort{|a, b| a.title <=> b.title} %>
+<% for page in @tag.pages.select(&:visible?).sort{|a, b| a.title <=> b.title} %>
   <li>
     <%= link_to(page.pretty_title, :controller => 'wiki', :action => 'show', :project_id => page.project, :id => page.title) %>
   </li>

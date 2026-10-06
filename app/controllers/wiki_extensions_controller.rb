@@ -53,7 +53,8 @@ class WikiExtensionsController < ApplicationController
   # Displays wiki pages that have the specified tag.
   def tag
     tag_id = params[:tag_id].to_i
-    @tag = WikiExtensionsTag.find(tag_id)
+    @tag = WikiExtensionsTag.find_by(id: tag_id, project_id: @project.id)
+    render_404 unless @tag
   end
 
   # Redirects to the wiki page configured for the specified menu item.
