@@ -18,10 +18,31 @@
 require File.dirname(__FILE__) + "/../test_helper"
 
 class WikiExtensionsCommentTest < ActiveSupport::TestCase
-  fixtures :wiki_extensions_comments
+  fixtures :projects, :users, :roles, :members, :member_roles, :enabled_modules,
+    :wikis, :wiki_pages, :wiki_contents, :wiki_extensions_comments
 
   # Replace this with your real tests.
   def test_truth
     assert true
+  end
+  def test_activity_provider_lists_comments_without_deprecation
+    comment = WikiExtensionsComment.create!(wiki_page_id: 1, user_id: 2, comment: "activity check")
+    fetcher = Redmine::Activity::Fetcher.new(User.find(1), project: Project.find(1))
+    fetcher.scope = ["wiki_comment"]
+    events = nil
+    assert_not_deprecated(Rails.application.deprecators[:redmine]) do
+      events = fetcher.events(Time.zone.today - 1, Time.zone.today + 1)
+    end
+    # the provider scope selects a few columns only (no id), so compare those
+    assert_includes events.map { |e| [e.wiki_page_id, e.user_id, e.comment] }, [1, 2, "activity check"]
+    assert_equal "Wiki comment: CookBook_documentation", comment.event_title
+  end
+
+  def test_activity_provider_respects_view_wiki_edits
+    WikiExtensionsComment.create!(wiki_page_id: 1, user_id: 2, comment: "hidden check")
+    Role.anonymous.remove_permission!(:view_wiki_edits)
+    fetcher = Redmine::Activity::Fetcher.new(User.anonymous, project: Project.find(1))
+    fetcher.scope = ["wiki_comment"]
+    assert_empty fetcher.events(Time.zone.today - 1, Time.zone.today + 1)
   end
 end
