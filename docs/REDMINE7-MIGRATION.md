@@ -54,6 +54,24 @@ In this order: things that break, security, the GEOxyz changes, the open items, 
 9. Check Redmine 7 webhooks against this plugin (see "Rules"), and note the result here even if nothing is needed.
 10. Verify every feature of the plugin by hand on a running Redmine 7 (screenshots).
 
+## Baseline (2026-10-06, before any change in this session, head `befa3b0`)
+
+Redmine 7.0-stable-GEOxyz (7.0.1), Rails 8.1.3.1, Ruby 3.3.6. Test gems `shoulda` and
+`simplecov-lcov` supplied through `RMP_TEST_GEMS` plus a temporary shim for the shoulda-context 2.0
+reporter crash (without the shim the run aborts on the first failure with
+`undefined local variable or method 'executable' for an instance of Rails::TestUnitReporter`).
+
+| | PostgreSQL 16.15 | MariaDB 10.11.14 |
+|---|---|---|
+| minitest | 56 runs, 122 assertions, 2 failures, 0 errors | 56 runs, 122 assertions, 1 failure, 0 errors |
+| failing | `wiki_extensions_setting_test.rb:52`, `wiki_controller_test.rb:136` | `wiki_controller_test.rb:136` |
+| e2e smoke (`.codex/e2e/smoke.mjs`) | 8 plugin GET routes, 19 screenshots, 0 problems | |
+| e2e core flows | 6 screenshots, 0 problems | |
+
+Environment notes: `test_setup.sh` with `RMP_PROVISION_DB=1` fails when run as root (`$SUDO -u postgres`
+with an empty `$SUDO`); worked around by creating the role by hand and `RMP_PROVISION_DB=0`. The
+preinstalled Chromium is revision 1194, so Playwright 1.56.1 (not the latest) is used.
+
 ## GEOxyz changes to review or re-apply
 
 These GEOxyz commits are on the branch GEOxyz runs today and therefore on this branch. Review each one against the code it now sits on (upstream merges and Redmine 7 core): drop it if upstream or core now does the same, rewrite it if it is not up to the quality rules below (tests, I18n, security, portability), keep it otherwise. Record the verdict per commit in this file.
