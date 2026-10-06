@@ -30,4 +30,29 @@ class EmoticonsTest < ActiveSupport::TestCase
       assert_not_nil(@emoticons.emoticons)
     end
   end
+  # GEOxyz 46ffc27 (route and url_helpers at render time) and e0b64b3
+  # (CommonMark); the Textile rule sits on Textile::Filter since Redmine 7.
+  context "rendering" do
+    should "replace emoticons with Textile" do
+      html = Redmine::WikiFormatting.to_html("textile", "Smile :) here")
+      assert_include '<img src="/wiki_extentions/emoticon/smile.png" alt=":)">', html
+    end
+
+    should "replace emoticons with CommonMark" do
+      html = Redmine::WikiFormatting.to_html("common_mark", "Smile :) and :( here")
+      assert_include '<img src="/wiki_extentions/emoticon/smile.png" alt=":)">', html
+      assert_include '<img src="/wiki_extentions/emoticon/sad.png" alt=":(">', html
+    end
+
+    should "keep multibyte text intact with CommonMark" do
+      html = Redmine::WikiFormatting.to_html("common_mark", "Smile :) hallo \u2192 wereld, \u00e0 \u00eb")
+      assert html.valid_encoding?
+      assert_include "hallo \u2192 wereld, \u00e0 \u00eb", html
+    end
+
+    should "leave text without a following space alone" do
+      html = Redmine::WikiFormatting.to_html("common_mark", "a:)b and :(c")
+      assert_not_include "<img", html
+    end
+  end
 end
