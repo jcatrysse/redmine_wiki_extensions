@@ -15,38 +15,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-require_dependency 'projects_helper'
+require_dependency "projects_helper"
 
+# Patch that adds a wiki extensions settings tab to the project settings page.
 module WikiExtensionsProjectsHelperPatch
-  def self.included(base)
-    base.send(:include, InstanceMethods)
+  # Appends the wiki extensions tab to the project settings tabs if the user is authorized.
+  # @return [Array<Hash>]
+  def project_settings_tabs
+    tabs = super
+    action = { name: "wiki_extensions",
+      controller: "wiki_extensions_settings",
+      action: :show,
+      partial: "wiki_extensions_settings/show",
+      label: :wiki_extensions }
 
-    base.class_eval do
-      alias_method :project_settings_tabs_without_wiki_extensions, :project_settings_tabs
-      alias_method :project_settings_tabs, :project_settings_tabs_with_wiki_extensions
-    end
-  end
+    tabs << action if User.current.allowed_to?(action, @project)
 
-  module InstanceMethods
-    def project_settings_tabs_with_wiki_extensions
-      tabs = project_settings_tabs_without_wiki_extensions
-
-      wiki_extensions_tabs = []
-      wiki_extensions_tabs.push({
-                                  :name       => 'wiki_extensions',
-                                  :controller => 'wiki_extensions_settings',
-                                  :action     => :show,
-                                  :partial    => 'wiki_extensions_settings/show',
-                                  :label      => :wiki_extensions
-                                })
-      wiki_extensions_tabs.each do |tab|
-        tabs << tab if User.current.allowed_to?(:wiki_extensions_settings, @project)
-      end
-      tabs
-    end
+    tabs
   end
 end
 
-unless ProjectsHelper.included_modules.include?(WikiExtensionsProjectsHelperPatch)
-  ProjectsHelper.send(:include, WikiExtensionsProjectsHelperPatch)
-end
+ProjectsHelper.prepend(WikiExtensionsProjectsHelperPatch)
