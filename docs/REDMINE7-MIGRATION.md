@@ -79,6 +79,7 @@ In this order: things that break, security, the GEOxyz changes, the open items, 
 12. Redmine 7 (GEOxyz) stores sessions as JSON: integer session keys come back as strings, so every vote click and every page view counted again. `35157cd`. Works on 5.1 (before-run).
 13. GEOxyz 842d27f: a first tag that is not a dropdown option was silently deleted on save. `f1ec112`.
 14. Security: comment actions accepted pages/comments of any project (`4a5d9cf`), the tag page listed tags of any project (`1668c16`), comment delete was a GET without confirmation (CSRF, `e541bb5`), `project`/`wiki`/`lastupdated_at`/`taggedpages` macros revealed private projects (`3c2794d`), stored XSS in `fn`/`fnlist`/`iframe` (`839673a`) and in the comment author name (`4e5ccf7`), `eval` of a request value in `WikiExtensionsVote#target` (`3c42457`).
+16. Comment Edit/Delete links shown where the server refuses them (Jan's answer to open question 6). `f24ef06`.
 15. Robustness: empty comment mailed watchers (`a52abd9`), settings POST without menus was a 500 (`efaad26`), vote without key a 500 (`4088a4c`), `forward_wiki_page` created a menu row for any `menu_id` and showed a stray "Tab#0" (`f25bac7`).
 
 ## Baseline (2026-10-06, before any change in this session, head `befa3b0`)
@@ -257,8 +258,8 @@ results quoted in the analysis come from it.
 | | PostgreSQL 16.15 | MariaDB 10.11.14 |
 |---|---|---|
 | baseline (before) | 56 runs, 122 assertions, 2 failures | 56 runs, 122 assertions, 1 failure |
-| now | **103 runs, 338 assertions, 0 failures, 0 errors, 0 skips** | **103 runs, 338 assertions, 0 failures, 0 errors, 0 skips** |
-| line coverage | 95.09% (988/1039) | 95.09% |
+| now | **105 runs, 350 assertions, 0 failures, 0 errors, 0 skips** | **105 runs, 350 assertions, 0 failures, 0 errors, 0 skips** |
+| line coverage | 95.10% (989/1040) | 95.10% |
 
 YARD: `100.00% documented` (51 methods). Boot and eager load: the production-mode server (eager loading)
 started on both engines. Migrations down to 0 and up, and the upgrade from legacy 0015: OK on both.
@@ -296,9 +297,6 @@ server database defaults to `redmine_e2e` even for another checkout (set `RMP_SE
 - Headings that macros output (`{{tagcloud}}`'s "Tags", comment headers) get Redmine's "edit this section"
   pencil, pointing at the wrong section.
 - Emoticons have no left boundary: `f(x) ` becomes the "x" icon (both formatters).
-- Comment Edit/Delete links are shown by permission, while the actions also require being the author or
-  an admin: a commenter sees Edit/Delete on other people's comments and gets 403 (seen in
-  comments-commenter-refusals).
 - `vote` accepts any `target_class_name`/`target_id`; it only counts, but the count of an object in another
   project can be read and raised. `show_vote` and `show_comments` are permission-only routes without an
   action (404).
@@ -310,22 +308,18 @@ server database defaults to `redmine_e2e` even for another checkout (set `RMP_SE
 
 ## Open questions for Jan
 
-1. **Test gems** (new-gem rule): the tests already required `shoulda` and `simplecov-lcov`; this branch
-   only declares them, in a test group through `PluginGemfile` (`85bd75b`). Options: keep (recommended), or
-   convert the shoulda `context/should` tests to plain minitest and drop the gems. Recommendation: keep.
-2. **Comment delete is DELETE only** (`e541bb5`): the GEOxyz routes accepted GET, which made deletion
-   CSRF-able. A bookmarked GET delete link stops working; nothing in the plugin uses one. Recommendation: keep.
-3. **Macros hide private projects** (`3c2794d`): a page in a public project that links into a private one
-   now shows the macro text instead of the link to readers without access. Recommendation: keep (core
-   links behave the same way).
-4. **Footnote words and tag names are text**: markup in `{{fn(word, ...)}}` or in a tag name is escaped
-   (`839673a`, `76f949d`). If GEOxyz pages rely on HTML in footnote words, they will show the tags.
-   Recommendation: keep.
-5. **Disabled menu tab URL** (`f25bac7`): `forward_wiki_page` for a disabled or unconfigured tab is now a
-   404 instead of a redirect to the wiki start page. Recommendation: keep.
-6. **Edit/Delete links for non-authors** (see findings): hide them unless the user is the author or an
-   admin, or let the edit/delete permissions apply to all comments. Not changed; recommendation: hide
-   them (matches what the server allows), in a follow-up.
+Answered by Jan on 2026-10-06; all six with the recommended option.
+
+| # | question | answer |
+|---|---|---|
+| 1 | Test gems through `PluginGemfile` (`85bd75b`) | keep |
+| 2 | Comment delete only by DELETE with confirmation (`e541bb5`) | keep, no GET |
+| 3 | Macros hide private projects from non-members (`3c2794d`) | keep |
+| 4 | Markup in footnote words and tag names shown as text (`839673a`, `76f949d`) | keep, always text |
+| 5 | Disabled or unconfigured menu tab answers 404 (`f25bac7`) | keep 404 |
+| 6 | Edit/Delete links on other people's comments | hide them unless author or admin: built in `f24ef06` (tests, e2e comments-commenter on both engines) |
+
+No open questions remain.
 
 ## Rules
 
