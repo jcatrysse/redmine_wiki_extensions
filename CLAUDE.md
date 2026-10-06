@@ -82,9 +82,10 @@ User.current.allowed_to?({controller: 'wiki_extensions', action: 'action'}, @pro
 **Session-based state** (e.g., access counting):
 ```ruby
 session[:access_count_table] ||= {}
-unless session[:access_count_table][page.id]
+# string keys: Redmine 7 stores sessions as JSON, integer keys come back as strings
+unless session[:access_count_table][page.id.to_s]
   WikiExtensionsCount.countup(page.id)
-  session[:access_count_table][page.id] = 1
+  session[:access_count_table][page.id.to_s] = 1
 end
 ```
 

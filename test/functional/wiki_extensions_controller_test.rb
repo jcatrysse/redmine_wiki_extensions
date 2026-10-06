@@ -228,4 +228,15 @@ class WikiExtensionsControllerTest < ActionController::TestCase
     assert_response :not_found
     assert_not_includes response.body, page.title
   end
+  # Redmine 7 keeps sessions as JSON: integer hash keys come back as strings
+  def test_vote_counts_once_per_session_after_a_json_round_trip
+    @request.session[:user_id] = 1
+    post :vote, params: { id: 1, target_class_name: "WikiContent", target_id: 1, key: "json" }
+    vote = WikiExtensionsVote.find_by(target_class_name: "WikiContent", target_id: 1, keystr: "json")
+    assert_equal 1, vote.count
+    @request.session[:wiki_extension_voted] = JSON.parse(@request.session[:wiki_extension_voted].to_json)
+    post :vote, params: { id: 1, target_class_name: "WikiContent", target_id: 1, key: "json" }
+    assert_response :success
+    assert_equal 1, vote.reload.count
+  end
 end

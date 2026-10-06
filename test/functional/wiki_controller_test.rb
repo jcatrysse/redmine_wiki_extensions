@@ -321,6 +321,18 @@ class WikiControllerTest < ActionController::TestCase
     end
   end
 
+  def test_count_once_per_session_after_a_json_round_trip
+    setContent("{{count}}{{show_count}}")
+    page = @wiki.find_page(@page_name)
+    @request.session[:user_id] = 1
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_equal 1, WikiExtensionsCount.access_count(page.id)
+    # Redmine 7 keeps sessions as JSON: integer hash keys come back as strings
+    @request.session[:access_count_table] = JSON.parse(@request.session[:access_count_table].to_json)
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_equal 1, WikiExtensionsCount.access_count(page.id)
+  end
+
   context "show_count" do
     should "success" do
       text = ""

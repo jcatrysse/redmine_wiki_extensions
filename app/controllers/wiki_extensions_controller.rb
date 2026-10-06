@@ -100,10 +100,11 @@ class WikiExtensionsController < ApplicationController
     key = params[:key]
     vote = WikiExtensionsVote.find_or_create(target_class_name, target_id, key)
     session[:wiki_extension_voted] = Hash.new unless session[:wiki_extension_voted]
-    unless session[:wiki_extension_voted][vote.id]
+    # string keys: a JSON session store (Redmine 7) turns integer keys into strings
+    unless session[:wiki_extension_voted][vote.id.to_s]
       vote.countup
       vote.save!
-      session[:wiki_extension_voted][vote.id] = 1
+      session[:wiki_extension_voted][vote.id.to_s] = 1
     end
 
     render plain: " #{vote.count}"

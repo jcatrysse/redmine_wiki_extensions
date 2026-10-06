@@ -25,9 +25,10 @@ module WikiExtensionsCountMacro
       return nil unless obj
       page = obj.page
       session[:access_count_table] = Hash.new unless session[:access_count_table]
-      unless session[:access_count_table][page.id]
+      # string keys: a JSON session store (Redmine 7) turns integer keys into strings
+      unless session[:access_count_table][page.id.to_s]
         WikiExtensionsCount.countup(page.id)
-        session[:access_count_table][page.id] = 1
+        session[:access_count_table][page.id.to_s] = 1
       end
 
       return ""
