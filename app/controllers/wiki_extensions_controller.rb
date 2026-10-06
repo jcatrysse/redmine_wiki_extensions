@@ -101,6 +101,8 @@ class WikiExtensionsController < ApplicationController
     target_class_name = params[:target_class_name]
     target_id = params[:target_id].to_i
     key = params[:key]
+    return render_404 if target_class_name.blank? || key.blank?
+
     vote = WikiExtensionsVote.find_or_create(target_class_name, target_id, key)
     session[:wiki_extension_voted] = Hash.new unless session[:wiki_extension_voted]
     # string keys: a JSON session store (Redmine 7) turns integer keys into strings

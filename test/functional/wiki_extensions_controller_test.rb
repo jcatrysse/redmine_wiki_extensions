@@ -261,4 +261,11 @@ class WikiExtensionsControllerTest < ActionController::TestCase
     get :forward_wiki_page, params: { id: 1, menu_id: 2 }
     assert_redirected_to "/projects/ecookbook/wiki/CookBook_documentation"
   end
+  def test_vote_without_key_is_not_found
+    @request.session[:user_id] = 1
+    assert_no_difference "WikiExtensionsVote.count" do
+      post :vote, params: { id: 1, target_class_name: "WikiContent", target_id: 1 }
+    end
+    assert_response :not_found
+  end
 end
