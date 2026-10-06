@@ -24,7 +24,9 @@ class WikiExtensionsVote < ApplicationRecord
   def target
     return nil unless self.target_class_name
     return nil unless self.target_id
-    targetclass = eval self.target_class_name
+    # never eval: the vote action stores the class name from the request
+    targetclass = self.target_class_name.safe_constantize
+    return nil unless targetclass.is_a?(Class) && targetclass < ActiveRecord::Base
     targetclass.find(self.target_id)
   end
 

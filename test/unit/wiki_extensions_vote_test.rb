@@ -34,6 +34,13 @@ class WikiExtensionsVoteTest < ActiveSupport::TestCase
       assert_nil(@vote.target)
     end
 
+    should "not evaluate target_class_name" do
+      # the vote action stores target_class_name straight from the request
+      @vote.target_class_name = "raise('evaluated')"
+      @vote.target_id = 1
+      assert_nil(@vote.target)
+    end
+
     should "return nil if target_id is nil" do
       @vote.target_class_name = "Issue"
       assert_nil(@vote.target)
