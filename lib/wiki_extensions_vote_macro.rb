@@ -36,7 +36,8 @@ module WikiExtensionsVoteMacro
       url = url_for({ controller: "wiki_extensions", action: "vote",
           id: @project, target_class_name: obj.class.name, target_id: obj.id,
           key: key, url: @_request.url })
-      o << link_to_function(label, "$('##{voteid}').load('#{url}')")
+      # POST (load() posts when it gets data): the vote route accepts POST only
+      o << link_to_function(label, "$('##{voteid}').load('#{url}', {})")
       o << ('<span id="' + voteid + '"> ')
       o << " #{vote.count}"
       o << "</span>"

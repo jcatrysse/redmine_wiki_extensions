@@ -286,6 +286,9 @@ class WikiControllerTest < ActionController::TestCase
       @request.session[:user_id] = 1
       get :show, params: { project_id: 1, id: @page_name }
       assert_response :success
+      # the vote route only accepts POST; jQuery's load() posts when it gets data
+      assert_select "span.wikiext-vote a[onclick*=?]", "/projects/ecookbook/wiki_extensions/vote?"
+      assert_select "span.wikiext-vote a[onclick*=?]", "', {})"
     end
   end
 
