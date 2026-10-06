@@ -202,6 +202,26 @@ class WikiControllerTest < ActionController::TestCase
     assert_select "input[name=?][value=?]", "extension[tags][1]", "approved"
   end
 
+  def test_edit_escapes_tag_names_in_the_tag_fields
+    page = @wiki.find_page(@page_name)
+    page.set_tags("0" => "a", "1" => 'b" onfocus="alert(1)')
+    @request.session[:user_id] = 1
+    get :edit, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    assert_select "input[name=?][value=?]", "extension[tags][1]", 'b" onfocus="alert(1)'
+    assert_select "input[onfocus]", 0
+  end
+
+  def test_edit_escapes_tag_names_in_the_autocomplete_list
+    page = @wiki.find_page(@page_name)
+    page.set_tags("0" => "a", "1" => "it's</script><script>alert(1)//")
+    @request.session[:user_id] = 1
+    get :edit, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    assert_includes response.body, %q(= 'it\'s<\/script><script>alert(1)//';)
+    assert_not_includes response.body, "</script><script>alert(1)"
+  end
+
   def test_recent
     text = ""
     text << "{{recent}}\n"
