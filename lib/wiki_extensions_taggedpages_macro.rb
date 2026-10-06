@@ -105,7 +105,7 @@ module WikiExtensionsTaggedpagesMacro
       tagged_pages += tagged_pages_tmp
 
       o = '<ul class="wikiext-taggedpages">'
-      tagged_pages.uniq.sort_by(&:pretty_title).each do |page|
+      tagged_pages.uniq.select(&:visible?).sort_by(&:pretty_title).each do |page|
         o << ("<li>" + link_to(page.pretty_title, controller: "wiki", action: "show", project_id: page.project, id: page.title) + "</li>")
       end
       o << "</ul>"

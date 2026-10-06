@@ -33,6 +33,7 @@ module WikiExtensionsLastupdatedAtMacro
         wiki = Wiki.find_by(project_id: project.id)
         return nil unless wiki
         page = wiki.find_page(page_name)
+        return nil unless page && page.visible?
       end
 
       return nil unless page

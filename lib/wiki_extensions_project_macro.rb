@@ -30,6 +30,7 @@ module WikiExtensionsProjectMacro
       project = Project.find_by(name: project_name)
       project = Project.find_by(identifier: project_name) unless project
       return nil unless project
+      return nil unless project.visible?
       return nil unless WikiExtensionsUtil.is_enabled?(@project) if @project
       if args[1]
         alias_name = args[1].strip

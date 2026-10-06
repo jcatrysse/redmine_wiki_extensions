@@ -37,10 +37,12 @@ module WikiExtensionsWikiMacro
       project = Project.find_by(name: project_name)
       project = Project.find_by(identifier: project_name) unless project
       return nil unless project
+      return nil unless project.visible?
       wiki = Wiki.find_by(project_id: project.id)
       return nil unless wiki
       page = wiki.find_page(page_name)
       return nil unless page
+      return nil unless page.visible?
 
       o = ""
       o << link_to(alias_name, controller: "wiki", action: "show", project_id: project, id: page_name)
