@@ -20,9 +20,9 @@ RedmineApp::Application.routes.draw do
       to: 'wiki_extensions#emoticon',
       as: 'wiki_extensions_emoticon'
 
-  scope 'projects/:id', as: 'project' do
-    match 'wiki_extensions/stylesheet', to: 'wiki_extensions#stylesheet', via: [:get, :post], as: 'wiki_extensions_stylesheet'
+  match 'projects/:id/wiki_extensions/stylesheet', to: 'wiki_extensions#stylesheet', via: [:get, :post], as: 'wiki_extensions_stylesheet'
 
+  scope 'projects/:id', as: 'project' do
     get    'wiki_extensions/show_vote',     to: 'wiki_extensions#show_vote'
     post   'wiki_extensions/vote',          to: 'wiki_extensions#vote'
     post   'wiki_extensions/add_comment',   to: 'wiki_extensions#add_comment'
