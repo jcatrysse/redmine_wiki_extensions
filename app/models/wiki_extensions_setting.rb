@@ -40,6 +40,6 @@ class WikiExtensionsSetting < ApplicationRecord
   # Returns the ordered menu settings for this project.
   # @return [ActiveRecord::Relation<WikiExtensionsMenu>]
   def menus
-    WikiExtensionsMenu.where(project_id: project_id).order("menu_no")
+    WikiExtensionsMenu.where(project_id: project_id, menu_no: 1..5).order("menu_no")
   end
 end

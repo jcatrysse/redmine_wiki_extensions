@@ -239,4 +239,26 @@ class WikiExtensionsControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal 1, vote.reload.count
   end
+  def test_forward_wiki_page_refuses_a_menu_that_does_not_exist
+    @request.session[:user_id] = 1
+    [nil, 0, 6, 99].each do |menu_id|
+      # (the project menu itself creates the rows 1 to 5 while rendering)
+      assert_no_difference "WikiExtensionsMenu.where.not(menu_no: 1..5).count" do
+        get :forward_wiki_page, params: { id: 1, menu_id: menu_id }.compact
+      end
+      assert_response :not_found
+    end
+  end
+
+  def test_forward_wiki_page_refuses_a_disabled_menu
+    menu = WikiExtensionsMenu.find_or_create(1, 2)
+    menu.update!(enabled: false, page_name: "CookBook_documentation")
+    @request.session[:user_id] = 1
+    get :forward_wiki_page, params: { id: 1, menu_id: 2 }
+    assert_response :not_found
+
+    menu.update!(enabled: true)
+    get :forward_wiki_page, params: { id: 1, menu_id: 2 }
+    assert_redirected_to "/projects/ecookbook/wiki/CookBook_documentation"
+  end
 end

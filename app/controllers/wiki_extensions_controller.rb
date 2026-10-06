@@ -60,7 +60,10 @@ class WikiExtensionsController < ApplicationController
   # Redirects to the wiki page configured for the specified menu item.
   def forward_wiki_page
     menu_id = params[:menu_id].to_i
-    menu = WikiExtensionsMenu.find_or_create(@project.id, menu_id)
+    # only the five configurable tabs, and never create a row from the URL
+    menu = WikiExtensionsMenu.find_by(project_id: @project.id, menu_no: menu_id) if (1..5).cover?(menu_id)
+    return render_404 unless menu && menu.enabled && menu.page_name.present?
+
     redirect_to controller: "wiki", action: "show", project_id: @project, id: menu.page_name
   end
 

@@ -38,6 +38,14 @@ class WikiExtensionsSettingTest < ActiveSupport::TestCase
     assert_equal(5, setting.menus.length)
   end
 
+  def test_menus_ignore_rows_outside_one_to_five
+    setting = WikiExtensionsSetting.find_or_create(6)
+    # older versions created such rows for any menu_id passed to forward_wiki_page
+    WikiExtensionsMenu.find_or_create(6, 0)
+    WikiExtensionsMenu.find_or_create(6, 42)
+    assert_equal([1, 2, 3, 4, 5], setting.menus.map(&:menu_no))
+  end
+
   def test_tag_dropdown_options_default_and_project_override
     project = Project.find(1)
 
