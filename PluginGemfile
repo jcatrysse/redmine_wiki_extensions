@@ -1,0 +1,6 @@
+# Redmine's Gemfile loads plugins/*/{Gemfile,PluginGemfile}. The test gems of
+# this plugin live in Gemfile_for_test, which the upstream tooling copies to a
+# (git-ignored) Gemfile; load it from here when that copy is not there, so a
+# plain Redmine checkout can run the plugin's tests too.
+plugin_gemfile = File.expand_path('Gemfile', __dir__)
+eval_gemfile File.expand_path('Gemfile_for_test', __dir__) unless File.exist?(plugin_gemfile)

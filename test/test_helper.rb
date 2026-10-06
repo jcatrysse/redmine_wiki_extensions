@@ -3,6 +3,18 @@ require "simplecov"
 require "shoulda"
 require "simplecov-lcov"
 
+# shoulda-context 2.0 replaces Rails::TestUnitReporter#format_rerun_snippet with
+# a version that calls an instance method `executable`, which Rails 7.1+ only
+# defines on the class. Without this the run aborts on the first failure.
+require "rails/test_unit/reporter"
+unless Rails::TestUnitReporter.method_defined?(:executable)
+  Rails::TestUnitReporter.class_eval do
+    def executable
+      self.class.executable
+    end
+  end
+end
+
 
 SimpleCov::Formatter::LcovFormatter.config do |config|
   config.report_with_single_file = true
