@@ -35,6 +35,8 @@
        i = 0
        maxline = 5
        tag_options = WikiExtensionsUtil.tag_dropdown_options_with_blank(@project)
+       # keep a first tag that is not one of the options, or saving would drop it
+       tag_options += [tags[0].name] if tags[0] && !tag_options.include?(tags[0].name)
     %>
     <%
        maxline.times { |line|

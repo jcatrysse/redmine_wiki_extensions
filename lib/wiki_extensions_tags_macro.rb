@@ -72,7 +72,7 @@ module WikiExtensionsTagsMacro
 
     classes = %w(tag_level1 tag_level2 tag_level3 tag_level4 tag_level5)
 
-    # 1. Basis: met newline
+    # {{taglist}}: one link per line
     macro :taglist do |obj, args|
       page    = obj.respond_to?(:page) ? obj.page : nil
       project = page&.project || @project
@@ -104,7 +104,7 @@ module WikiExtensionsTagsMacro
       links.join("<br/>\n").html_safe
     end
 
-    # 2. Variant met komma gescheiden lijst
+    # {{taglist_commas}}: comma separated
     #    {{taglist_commas}}
     macro :taglist_commas do |obj, args|
       page    = obj.respond_to?(:page) ? obj.page : nil
@@ -137,7 +137,7 @@ module WikiExtensionsTagsMacro
       links.join(', ').html_safe
     end
 
-    # 3. Variant met markdown bullets
+    # {{taglist_bullets}}: a bulleted list
     #    {{taglist_bullets}}
     macro :taglist_bullets do |obj, args|
       page    = obj.respond_to?(:page) ? obj.page : nil

@@ -187,6 +187,21 @@ class WikiControllerTest < ActionController::TestCase
     assert_response :success
   end
 
+  def test_edit_keeps_a_first_tag_that_is_not_a_dropdown_option
+    page = @wiki.find_page(@page_name)
+    page.set_tags("0" => "alpha", "1" => "approved")
+    @request.session[:user_id] = 1
+    get :edit, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    # the first (alphabetical) tag goes into the dropdown; it must stay selected
+    # or saving the page would silently drop it
+    assert_select "select[name=?]", "extension[tags][0]" do
+      assert_select "option[selected][value=?]", "alpha"
+      assert_select "option[value=?]", "approved"
+    end
+    assert_select "input[name=?][value=?]", "extension[tags][1]", "approved"
+  end
+
   def test_recent
     text = ""
     text << "{{recent}}\n"
