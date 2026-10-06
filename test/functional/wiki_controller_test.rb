@@ -105,6 +105,9 @@ class WikiControllerTest < ActionController::TestCase
     @request.session[:user_id] = 1
     get :show, params: { project_id: 1, id: @page_name }
     assert_response :success
+    # deleting is a DELETE request with a confirmation, never a plain link
+    assert_select "a.icon-del[href=?][data-method=delete][data-confirm]",
+                  "/projects/ecookbook/wiki_extensions/destroy_comment?comment_id=#{comment.id}"
   end
 
   def test_div

@@ -27,7 +27,7 @@ RedmineApp::Application.routes.draw do
     post   'wiki_extensions/vote',          to: 'wiki_extensions#vote'
     post   'wiki_extensions/add_comment',   to: 'wiki_extensions#add_comment'
     post   'wiki_extensions/reply_comment', to: 'wiki_extensions#reply_comment'
-    match  'wiki_extensions/destroy_comment', to: 'wiki_extensions#destroy_comment', via: [:get, :delete]
+    delete 'wiki_extensions/destroy_comment', to: 'wiki_extensions#destroy_comment'
     match  'wiki_extensions/update_comment',  to: 'wiki_extensions#update_comment',  via: [:post, :patch]
     get    'wiki_extensions/forward_wiki_page', to: 'wiki_extensions#forward_wiki_page'
     get    'wiki_extensions/show_comments',     to: 'wiki_extensions#show_comments'

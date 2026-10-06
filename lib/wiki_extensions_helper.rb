@@ -57,7 +57,7 @@ module ActionView
                 if User.current.allowed_to?({ controller: "wiki_extensions", action: "destroy_comment" }, @project) or User.current.admin
                   del_link =  link_to_if_authorized(l(:button_delete), { controller: "wiki_extensions",
                       action: "destroy_comment", id: @project, comment_id: comment.id },
-                    class: "icon icon-del", confirm: l(:text_are_you_sure))
+                    class: "icon icon-del", method: :delete, data: { confirm: l(:text_are_you_sure) })
                   ret << (del_link || "")
                 end
 

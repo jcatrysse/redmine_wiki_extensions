@@ -26,6 +26,13 @@ class WikiExtensionsRoutingTest < Redmine::RoutingTest
     should_route "POST /projects/foo/wiki_extensions/update_comment" => "wiki_extensions#update_comment", id: "foo"
     should_route "GET /projects/foo/wiki_extensions/forward_wiki_page" => "wiki_extensions#forward_wiki_page", id: "foo"
     should_route "GET /projects/foo/wiki_extensions/tag" => "wiki_extensions#tag", id: "foo"
+    should_route "DELETE /projects/foo/wiki_extensions/destroy_comment" => "wiki_extensions#destroy_comment", id: "foo"
+  end
+
+  def test_destroy_comment_is_not_routed_for_get
+    assert_raises(ActionController::RoutingError) do
+      Rails.application.routes.recognize_path("/projects/foo/wiki_extensions/destroy_comment", method: :get)
+    end
   end
 
   def test_wiki_extensions_settings_routes
