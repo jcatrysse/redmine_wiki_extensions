@@ -16,6 +16,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class WikiExtensionsUtil
+  # Options of the first tag field when neither the project nor the plugin
+  # settings define any.
   DEFAULT_TAG_DROPDOWN_OPTIONS = [
     'draft',
     'in-review',
@@ -36,6 +38,10 @@ class WikiExtensionsUtil
     !setting.tag_disabled
   end
 
+  # Returns the options of the first tag field: the project's list, else the
+  # plugin-wide list, else {DEFAULT_TAG_DROPDOWN_OPTIONS}.
+  # @param project [Project]
+  # @return [Array<String>]
   def WikiExtensionsUtil.tag_dropdown_options(project)
     project_options = WikiExtensionsSetting.find_or_create(project.id).tag_dropdown_options
     global_options = Setting.plugin_redmine_wiki_extensions['tag_dropdown_options'] if Setting.respond_to?(:plugin_redmine_wiki_extensions)
@@ -46,12 +52,18 @@ class WikiExtensionsUtil
     parsed_options.presence || DEFAULT_TAG_DROPDOWN_OPTIONS
   end
 
+  # Returns {tag_dropdown_options} with a leading blank option.
+  # @param project [Project]
+  # @return [Array<String>]
   def WikiExtensionsUtil.tag_dropdown_options_with_blank(project)
     [''] + WikiExtensionsUtil.tag_dropdown_options(project)
   end
 
   private
 
+  # Splits a newline separated list into stripped, non-blank options.
+  # @param raw_options [String, nil]
+  # @return [Array<String>]
   def WikiExtensionsUtil.parse_tag_dropdown_options(raw_options)
     return [] unless raw_options
 
