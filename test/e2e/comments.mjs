@@ -119,7 +119,10 @@ await t.login('commenter');
 await t.go(PAGE);
 const adminComment = t.page.locator('li.list_item', { has: shown(`Admin comment ${stamp}`) }).last();
 assert.equal(await adminComment.locator('> div.contextual a.icon-comment').count(), 1);
-await t.shot('commenter', 'commenter (comment permissions only): can add and reply; edit and delete links are shown by permission');
+// Edit and Delete only where the server allows them: own comments (or admin)
+assert.equal(await adminComment.locator('> div.contextual a.icon-edit').count(), 0, 'no Edit on the admin comment');
+assert.equal(await adminComment.locator('> div.contextual a.icon-del').count(), 0, 'no Delete on the admin comment');
+await t.shot('commenter', 'commenter (comment permissions only): can add and reply; no Edit or Delete on other people\'s comments (they used to be shown and then refused with 403)');
 const commentId = (await adminComment.getAttribute('id')).replace('wikiextensions_comment_li_', '');
 let r = await post('/projects/e2e-project/wiki_extensions/update_comment', { comment_id: commentId, comment: 'hijacked' });
 assert.equal(r.status(), 403, 'editing the admin comment is refused');

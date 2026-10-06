@@ -53,8 +53,10 @@ module ActionView
                 end
 
                 edit_link = link_to_function(l(:button_edit), "$('##{text_div_id}').hide();$('##{form_div_id}').show();$('##{form_reply_id}').hide();", class: "icon icon-edit wiki_font_size")
-                ret << edit_link if User.current.allowed_to?({ controller: "wiki_extensions", action: "update_comment" }, @project) or User.current.id == comment.user.id or User.current.admin
-                if User.current.allowed_to?({ controller: "wiki_extensions", action: "destroy_comment" }, @project) or User.current.admin
+                # as in the controller: the permission, and being the author or an admin
+                own_or_admin = User.current.admin || User.current.id == comment.user_id
+                ret << edit_link if own_or_admin && User.current.allowed_to?({ controller: "wiki_extensions", action: "update_comment" }, @project)
+                if own_or_admin && User.current.allowed_to?({ controller: "wiki_extensions", action: "destroy_comment" }, @project)
                   del_link =  link_to_if_authorized(l(:button_delete), { controller: "wiki_extensions",
                       action: "destroy_comment", id: @project, comment_id: comment.id },
                     class: "icon icon-del", method: :delete, data: { confirm: l(:text_are_you_sure) })

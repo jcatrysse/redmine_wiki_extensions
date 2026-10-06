@@ -110,6 +110,33 @@ class WikiControllerTest < ActionController::TestCase
                   "/projects/ecookbook/wiki_extensions/destroy_comment?comment_id=#{comment.id}"
   end
 
+  def test_comment_edit_and_delete_links_only_for_author_or_admin
+    Role.find(2).add_permission!(:add_wiki_comment, :edit_wiki_comments, :delete_wiki_comments)
+    setContent("{{comments}}")
+    other = WikiExtensionsComment.create!(wiki_page_id: @page.id, user_id: 2, comment: "by jsmith")
+    own = WikiExtensionsComment.create!(wiki_page_id: @page.id, user_id: 3, comment: "by dlopper")
+    @request.session[:user_id] = 3 # dlopper, Developer of project 1
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    # the actions also require being the author or an admin, so the links follow that
+    assert_select "#wikiextensions_comment_li_#{other.id} > div.contextual a.icon-edit", 0
+    assert_select "#wikiextensions_comment_li_#{other.id} > div.contextual a.icon-del", 0
+    assert_select "#wikiextensions_comment_li_#{other.id} > div.contextual a.icon-comment"
+    assert_select "#wikiextensions_comment_li_#{own.id} > div.contextual a.icon-edit"
+    assert_select "#wikiextensions_comment_li_#{own.id} > div.contextual a.icon-del"
+  end
+
+  def test_comment_links_for_the_author_need_the_permissions
+    Role.find(2).remove_permission!(:edit_wiki_comments, :delete_wiki_comments)
+    setContent("{{comments}}")
+    own = WikiExtensionsComment.create!(wiki_page_id: @page.id, user_id: 3, comment: "by dlopper")
+    @request.session[:user_id] = 3
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    assert_select "#wikiextensions_comment_li_#{own.id} > div.contextual a.icon-edit", 0
+    assert_select "#wikiextensions_comment_li_#{own.id} > div.contextual a.icon-del", 0
+  end
+
   def test_comments_escape_the_author_name
     user = User.find(2)
     user.update_column(:firstname, "<b>bold</b>")
