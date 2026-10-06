@@ -110,6 +110,18 @@ class WikiControllerTest < ActionController::TestCase
                   "/projects/ecookbook/wiki_extensions/destroy_comment?comment_id=#{comment.id}"
   end
 
+  def test_comments_escape_the_author_name
+    user = User.find(2)
+    user.update_column(:firstname, "<b>bold</b>")
+    setContent("{{comments}}")
+    WikiExtensionsComment.create!(wiki_page_id: @page.id, user_id: 2, comment: "hello")
+    @request.session[:user_id] = 1
+    get :show, params: { project_id: 1, id: @page_name }
+    assert_response :success
+    assert_select "h4.wiki_left b", 0
+    assert_select "h4.wiki_left", text: /<b>bold<\/b> Smith/
+  end
+
   def test_div
     @request.session[:user_id] = 1
     text = "{{div_start_tag(foo)}}\n"

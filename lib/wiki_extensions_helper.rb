@@ -70,9 +70,9 @@ module ActionView
               ret << "\n"
 
               if l(:this_is_gloc_lib) == "this_is_gloc_lib"
-                ret << l(:label_added_time_by, comment.user, distance_of_time_in_words(Time.zone.now, comment.updated_at))
+                ret << l(:label_added_time_by, h(comment.user), distance_of_time_in_words(Time.zone.now, comment.updated_at))
               else
-                ret << l(:label_added_time_by, author: comment.user, age: distance_of_time_in_words(Time.zone.now, comment.updated_at))
+                ret << l(:label_added_time_by, author: h(comment.user), age: distance_of_time_in_words(Time.zone.now, comment.updated_at))
               end
               ret << "</h4>\n"
               ret << ('<div id="' + div_comment_id + '" class="wiki_left">' + "\n")
