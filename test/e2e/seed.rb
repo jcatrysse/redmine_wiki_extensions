@@ -114,7 +114,10 @@ e2e_page(project, 'Vote', "# Vote\n\n{{vote(like, I like it)}}\n\nResult: {{show
 e2e_page(project, 'Emoticons', "# Emoticons\n\nSmile :) sad :( tongue :P grin :D wink ;) check (/) cross (x) warning (!) end\n", admin)
 e2e_page(project, 'Header', "Project header from the Header page", admin)
 e2e_page(project, 'Footer', "Project footer from the Footer page", admin)
-e2e_page(project, 'StyleSheet', "#wiki_extentions_header { border: 3px solid rgb(255, 0, 0); }\n", admin)
+# CommonMark strips the id of the header wrapper div (core sanitizer), so the
+# h1 rule is the one that shows the StyleSheet page applies there.
+e2e_page(project, 'StyleSheet', "#wiki_extentions_header { border: 3px solid rgb(255, 0, 0); }\n" \
+                                "#content div.wiki-page h1 { color: rgb(200, 0, 0); }\n", admin)
 
 # Things a reader of e2e-project must not learn about e2e-private.
 secret = e2e_page(private_project, 'Secret', "# Secret\n\nPrivate text.\n", admin)
