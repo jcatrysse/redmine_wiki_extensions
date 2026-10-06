@@ -25,7 +25,12 @@ assert.equal(await w.locator('.wikiext-page-break').count(), 1);
 assert.equal(await w.locator('iframe[src="http://127.0.0.1:3000/robots.txt"][width="300"]').count(), 1);
 assert.equal(await w.locator('video[width="160"][height="90"][controls]').count(), 1);
 assert.equal(await w.getByText('New page', { exact: true }).count(), 1, 'new_page link');
-await t.shot('all-macros', 'Every display macro rendered as manager: new marks, project/wiki/twitter links, last update, footnotes with list, styled div, count, popularity, recent, page break, iframe, video, new page form', {});
+// {{count}} counts a page once per session (it counted every view on Redmine 7)
+const views = async () => Number((await w.innerText()).match(/views: (\d+)/)[1]);
+const v1 = await views();
+await t.go(`${P}/Macros`, { allow: { requests: ['/missing.mp4'] } });
+assert.equal(await views(), v1, 'reload in the same session does not count again');
+await t.shot('all-macros', 'Every display macro rendered as manager: new marks, project/wiki/twitter links, last update, footnotes with list, styled div, count (unchanged by a reload in the same session), popularity, recent, page break, iframe, video, new page form', {});
 
 // {{new_page}}: the link opens a title field, Create goes to the new page
 await w.getByText('New page', { exact: true }).click();
