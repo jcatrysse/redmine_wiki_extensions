@@ -17,7 +17,7 @@
 require File.dirname(__FILE__) + "/../test_helper"
 
 class WikiExtensionsControllerTest < ActionController::TestCase
-  fixtures :projects, :users, :roles, :members, :enabled_modules, :wikis,
+  fixtures :projects, :users, :roles, :members, :member_roles, :enabled_modules, :wikis,
     :wiki_pages, :wiki_contents, :wiki_content_versions, :attachments,
     :wiki_extensions_comments, :wiki_extensions_tags, :wiki_extensions_menus,
     :wiki_extensions_votes
@@ -116,5 +116,72 @@ class WikiExtensionsControllerTest < ActionController::TestCase
       assert_equal(count + 1, WikiExtensionsVote.all.length)
       assert_response :success
     end
+  end
+  # dlopper (user 3) is a Developer of project 1 only; project 2 is private
+  def grant_comment_permissions
+    Role.find(2).add_permission!(:add_wiki_comment, :edit_wiki_comments, :delete_wiki_comments)
+    @request.session[:user_id] = 3
+  end
+
+  def foreign_comment(user_id = 3)
+    WikiExtensionsComment.create!(wiki_page_id: 3, user_id: user_id, comment: "on a private page")
+  end
+
+  def test_add_comment_refuses_a_page_of_another_project
+    grant_comment_permissions
+    assert_no_difference "WikiExtensionsComment.count" do
+      post :add_comment, params: { id: 1, wiki_page_id: 3, comment: "sneaky" }
+    end
+    assert_response :not_found
+  end
+
+  def test_reply_comment_refuses_a_page_of_another_project
+    grant_comment_permissions
+    parent = foreign_comment
+    assert_no_difference "WikiExtensionsComment.count" do
+      post :reply_comment, params: { id: 1, wiki_page_id: 3, comment_id: parent.id, reply: "sneaky" }
+    end
+    assert_response :not_found
+  end
+
+  def test_reply_comment_refuses_a_parent_on_another_page
+    grant_comment_permissions
+    parent = foreign_comment
+    assert_no_difference "WikiExtensionsComment.count" do
+      post :reply_comment, params: { id: 1, wiki_page_id: @page.id, comment_id: parent.id, reply: "sneaky" }
+    end
+    assert_response :not_found
+  end
+
+  def test_reply_comment
+    grant_comment_permissions
+    parent = WikiExtensionsComment.create!(wiki_page_id: @page.id, user_id: 1, comment: "parent")
+    post :reply_comment, params: { id: 1, wiki_page_id: @page.id, comment_id: parent.id, reply: "child" }
+    assert_redirected_to "/projects/ecookbook/wiki/#{@page.title}"
+    assert_equal parent.id, WikiExtensionsComment.order(:id).last.parent_id
+  end
+
+  def test_update_comment_refuses_a_comment_of_another_project
+    grant_comment_permissions
+    comment = foreign_comment
+    post :update_comment, params: { id: 1, comment_id: comment.id, comment: "changed" }
+    assert_response :not_found
+    assert_equal "on a private page", comment.reload.comment
+  end
+
+  def test_destroy_comment_refuses_a_comment_of_another_project
+    grant_comment_permissions
+    comment = foreign_comment
+    delete :destroy_comment, params: { id: 1, comment_id: comment.id }
+    assert_response :not_found
+    assert WikiExtensionsComment.exists?(comment.id)
+  end
+
+  def test_update_comment_of_another_user_is_refused
+    grant_comment_permissions
+    comment = WikiExtensionsComment.create!(wiki_page_id: @page.id, user_id: 2, comment: "by jsmith")
+    post :update_comment, params: { id: 1, comment_id: comment.id, comment: "changed" }
+    assert_response :forbidden
+    assert_equal "by jsmith", comment.reload.comment
   end
 end

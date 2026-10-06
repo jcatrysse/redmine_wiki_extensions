@@ -23,12 +23,14 @@ class WikiExtensionsController < ApplicationController
 
   # Adds a new comment to a wiki page.
   def add_comment
+    page = find_project_wiki_page
+    return unless page
+
     comment = WikiExtensionsComment.new
-    comment.wiki_page_id = params[:wiki_page_id].to_i
+    comment.wiki_page_id = page.id
     comment.user_id = @user.id
     comment.comment = params[:comment]
     comment.save
-    page = WikiPage.find(comment.wiki_page_id)
     # Send email-notification to watchers of wiki page
     WikiExtensionsCommentsMailer.deliver_wiki_commented(comment, page) if Setting.notified_events.include? "wiki_comment_added"
     redirect_to controller: "wiki", action: "show", project_id: @project, id: page.title
@@ -36,13 +38,17 @@ class WikiExtensionsController < ApplicationController
 
   # Adds a reply to an existing comment.
   def reply_comment
+    page = find_project_wiki_page
+    return unless page
+    parent = WikiExtensionsComment.find_by(id: params[:comment_id].to_i, wiki_page_id: page.id)
+    return render_404 unless parent
+
     comment = WikiExtensionsComment.new
-    comment.parent_id = params[:comment_id].to_i
-    comment.wiki_page_id = params[:wiki_page_id].to_i
+    comment.parent_id = parent.id
+    comment.wiki_page_id = page.id
     comment.user_id = @user.id
     comment.comment = params[:reply]
     comment.save
-    page = WikiPage.find(comment.wiki_page_id)
     # Send email-notification to watchers of wiki page
     WikiExtensionsCommentsMailer.deliver_wiki_commented(comment, page) if Setting.notified_events.include? "wiki_comment_added"
     redirect_to controller: "wiki", action: "show", project_id: @project, id: page.title
@@ -63,8 +69,8 @@ class WikiExtensionsController < ApplicationController
 
   # Deletes a comment; only admin or the comment author may delete.
   def destroy_comment
-    comment_id = params[:comment_id].to_i
-    comment = WikiExtensionsComment.find(comment_id)
+    comment = find_project_comment
+    return unless comment
     unless User.current.admin or User.current.id == comment.user.id
       render_403
       return false
@@ -77,8 +83,8 @@ class WikiExtensionsController < ApplicationController
 
   # Updates a comment's text; only admin or the comment author may edit.
   def update_comment
-    comment_id = params[:comment_id].to_i
-    comment = WikiExtensionsComment.find(comment_id)
+    comment = find_project_comment
+    return unless comment
     unless User.current.admin or User.current.id == comment.user.id
       render_403
       return false
@@ -144,5 +150,29 @@ class WikiExtensionsController < ApplicationController
 
   def find_user
     @user = User.current
+  end
+
+  # Returns the visible page of this project's wiki named by params[:wiki_page_id],
+  # or renders 404/403 and returns false.
+  def find_project_wiki_page
+    page = @project.wiki && @project.wiki.pages.find_by(id: params[:wiki_page_id].to_i)
+    if page.nil?
+      render_404
+    elsif !page.visible?
+      render_403
+    else
+      page
+    end
+  end
+
+  # Returns the comment named by params[:comment_id] when it belongs to a page
+  # of this project's wiki, or renders 404 and returns false.
+  def find_project_comment
+    comment = WikiExtensionsComment.find_by(id: params[:comment_id].to_i)
+    if comment && comment.wiki_page && comment.wiki_page.wiki.project_id == @project.id
+      comment
+    else
+      render_404
+    end
   end
 end
