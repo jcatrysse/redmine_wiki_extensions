@@ -1,10 +1,6 @@
 name: build_archive
 on:
-  push:
-    branches-ignore:
-      - '**'
-    tags:
-      - '**'
+  workflow_dispatch:
 permissions:
   contents: write
 env:
