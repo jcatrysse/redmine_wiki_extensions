@@ -76,8 +76,10 @@ fi
 
 if [ ! -f "$REDMINE_DIR/config/configuration.yml" ]; then
   mkdir -p "$REDMINE_DIR/tmp/mails"
+  # Only for the server environment: under "default:" Redmine would also apply it
+  # to the test environment, whose mail tests then see no deliveries.
   cat > "$REDMINE_DIR/config/configuration.yml" <<YAML
-default:
+$RMP_SERVER_ENV:
   email_delivery:
     delivery_method: :file
     file_settings:
