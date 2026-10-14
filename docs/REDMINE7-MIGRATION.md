@@ -79,6 +79,7 @@ In this order: things that break, security, the GEOxyz changes, the open items, 
 12. Redmine 7 (GEOxyz) stores sessions as JSON: integer session keys come back as strings, so every vote click and every page view counted again. `35157cd`. Works on 5.1 (before-run).
 13. GEOxyz 842d27f: a first tag that is not a dropdown option was silently deleted on save. `f1ec112`.
 14. Security: comment actions accepted pages/comments of any project (`4a5d9cf`), the tag page listed tags of any project (`1668c16`), comment delete was a GET without confirmation (CSRF, `e541bb5`), `project`/`wiki`/`lastupdated_at`/`taggedpages` macros revealed private projects (`3c2794d`), stored XSS in `fn`/`fnlist`/`iframe` (`839673a`) and in the comment author name (`4e5ccf7`), `eval` of a request value in `WikiExtensionsVote#target` (`3c42457`).
+17. Combined run 2026-10-14 (finding H1): `gem 'shoulda'` without `require: false` was loaded by `Bundler.require` into the test run of every plugin, and its reporter patch (broken on Rails 8.1) crashed other plugins' runs on their first failure. `a879efb`: `require: false`; this plugin's `test_helper` loads shoulda and its shim itself.
 16. Comment Edit/Delete links shown where the server refuses them (Jan's answer to open question 6). `f24ef06`.
 15. Robustness: empty comment mailed watchers (`a52abd9`), settings POST without menus was a 500 (`efaad26`), vote without key a 500 (`4088a4c`), `forward_wiki_page` created a menu row for any `menu_id` and showed a stray "Tab#0" (`f25bac7`).
 
@@ -283,8 +284,8 @@ one finding, rejected with evidence (Redmine's own `assert_include` helper); not
 second round was needed.
 
 **Tooling notes** (not changed, `.codex` is shared): `test_setup.sh` with `RMP_PROVISION_DB=1` fails as
-root (`$SUDO -u postgres` with empty `$SUDO`); `start_server.sh` writes `configuration.yml` under
-`default:`, so the test environment also delivers mail to files (mail tests then see no deliveries); the
+root (`$SUDO -u postgres` with empty `$SUDO`); `start_server.sh` wrote `configuration.yml` under
+`default:`, so the test environment also delivered mail to files (fixed in this repo's copy, finding H6); the
 server database defaults to `redmine_e2e` even for another checkout (set `RMP_SERVER_DB_NAME`);
 `redmine_clone.sh` with a second checkout inside the plugin copies the first checkout into it.
 
