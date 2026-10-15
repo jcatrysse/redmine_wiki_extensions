@@ -34,9 +34,31 @@ class WikiExtensionsMenu < ApplicationRecord
     menu
   end
 
+  # Returns the project's menu rows 1 to 5 keyed by number. Loaded with one
+  # query and kept on the project object, which the project menu renders
+  # from: its ten caption and condition procs cost one query per page.
+  # @param project [Project]
+  # @return [Hash{Integer => WikiExtensionsMenu}]
+  def self.for_project(project)
+    project.instance_variable_get(:@wiki_extensions_menus) ||
+      project.instance_variable_set(:@wiki_extensions_menus,
+                                    where(project_id: project.id, menu_no: 1..5).index_by(&:menu_no))
+  end
+
+  # Returns menu +no+ of a project (a Project or its id) without creating it.
+  # @return [WikiExtensionsMenu, nil]
+  def self.lookup(project, no)
+    project.is_a?(Project) ? for_project(project)[no] : find_by(project_id: project, menu_no: no)
+  end
+
+  # Returns whether menu +no+ is enabled and points at a page.
+  # @param pj_id [Project, Integer]
+  # @param no [Integer] menu item number (1–5)
+  # @return [Boolean]
   def self.enabled?(pj_id, no)
     begin
-      menu = find_or_create(pj_id, no)
+      menu = lookup(pj_id, no)
+      return false unless menu
       return false if menu.page_name.blank?
       menu.enabled
     rescue
@@ -45,12 +67,13 @@ class WikiExtensionsMenu < ApplicationRecord
   end
 
   # Returns the display title for a menu item, falling back to page name.
-  # @param pj_id [Integer]
+  # @param pj_id [Project, Integer]
   # @param no [Integer] menu item number (1–5)
   # @return [String, nil]
   def self.title(pj_id, no)
     begin
-      menu = find_or_create(pj_id, no)
+      menu = lookup(pj_id, no)
+      return nil unless menu
       return menu.title if menu.title.present?
       return menu.page_name if menu.page_name.present?
       nil

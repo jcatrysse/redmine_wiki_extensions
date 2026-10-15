@@ -242,7 +242,6 @@ class WikiExtensionsControllerTest < ActionController::TestCase
   def test_forward_wiki_page_refuses_a_menu_that_does_not_exist
     @request.session[:user_id] = 1
     [nil, 0, 6, 99].each do |menu_id|
-      # (the project menu itself creates the rows 1 to 5 while rendering)
       assert_no_difference "WikiExtensionsMenu.where.not(menu_no: 1..5).count" do
         get :forward_wiki_page, params: { id: 1, menu_id: menu_id }.compact
       end

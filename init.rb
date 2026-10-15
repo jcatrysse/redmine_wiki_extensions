@@ -64,8 +64,8 @@ Redmine::Plugin.register :redmine_wiki_extensions do
     before = menulist[i - 1] if i > 0
 
     menu :project_menu, menulist[i], { controller: 'wiki_extensions', action: 'forward_wiki_page', menu_id: no }, after: before,
-                                                                                                                           caption: Proc.new { |proj| WikiExtensionsMenu.title(proj.id, no) },
-                                                                                                                           if: Proc.new { |proj| WikiExtensionsMenu.enabled?(proj.id, no) },
+                                                                                                                           caption: Proc.new { |proj| WikiExtensionsMenu.title(proj, no) },
+                                                                                                                           if: Proc.new { |proj| WikiExtensionsMenu.enabled?(proj, no) },
                                                                                                                            permission: :view_wiki_pages
   }
 
