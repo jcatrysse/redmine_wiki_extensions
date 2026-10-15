@@ -80,6 +80,7 @@ In this order: things that break, security, the GEOxyz changes, the open items, 
 13. GEOxyz 842d27f: a first tag that is not a dropdown option was silently deleted on save. `f1ec112`.
 14. Security: comment actions accepted pages/comments of any project (`4a5d9cf`), the tag page listed tags of any project (`1668c16`), comment delete was a GET without confirmation (CSRF, `e541bb5`), `project`/`wiki`/`lastupdated_at`/`taggedpages` macros revealed private projects (`3c2794d`), stored XSS in `fn`/`fnlist`/`iframe` (`839673a`) and in the comment author name (`4e5ccf7`), `eval` of a request value in `WikiExtensionsVote#target` (`3c42457`).
 17. Combined run 2026-10-14 (finding H1): `gem 'shoulda'` without `require: false` was loaded by `Bundler.require` into the test run of every plugin, and its reporter patch (broken on Rails 8.1) crashed other plugins' runs on their first failure. `a879efb`: `require: false`; this plugin's `test_helper` loads shoulda and its shim itself.
+18. Performance (coordinator, approved by Jan 2026-10-15): the five project menu tabs cost 9 queries per project page (plus INSERTs for missing rows). `52240cd`: one query per page, no rows created while rendering; test pins the count.
 16. Comment Edit/Delete links shown where the server refuses them (Jan's answer to open question 6). `f24ef06`.
 15. Robustness: empty comment mailed watchers (`a52abd9`), settings POST without menus was a 500 (`efaad26`), vote without key a 500 (`4088a4c`), `forward_wiki_page` created a menu row for any `menu_id` and showed a stray "Tab#0" (`f25bac7`).
 
@@ -259,8 +260,8 @@ results quoted in the analysis come from it.
 | | PostgreSQL 16.15 | MariaDB 10.11.14 |
 |---|---|---|
 | baseline (before) | 56 runs, 122 assertions, 2 failures | 56 runs, 122 assertions, 1 failure |
-| now | **105 runs, 350 assertions, 0 failures, 0 errors, 0 skips** | **105 runs, 350 assertions, 0 failures, 0 errors, 0 skips** |
-| line coverage | 95.10% (989/1040) | 95.10% |
+| now | **108 runs, 361 assertions, 0 failures, 0 errors, 0 skips** | **108 runs, 361 assertions, 0 failures, 0 errors, 0 skips** |
+| line coverage | 95.12% (995/1046) | 95.12% |
 
 YARD: `100.00% documented` (51 methods). Boot and eager load: the production-mode server (eager loading)
 started on both engines. Migrations down to 0 and up, and the upgrade from legacy 0015: OK on both.
