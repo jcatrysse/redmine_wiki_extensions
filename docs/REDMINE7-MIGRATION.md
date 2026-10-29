@@ -123,6 +123,7 @@ only), reporter (no plugin permissions), outsider (no membership), anonymous.
 | `{{new}}`, `{{project}}`, `{{wiki}}`, `{{twitter}}`, `{{lastupdated_at}}`, `{{lastupdated_by}}`, `{{fn}}`/`{{fnlist}}`, `{{div_start_tag}}`/`{{div_end_tag}}`, `{{count}}`/`{{show_count}}`, `{{popularity}}`, `{{recent}}`, `{{page_break}}`, `{{iframe}}`, `{{video_tag}}` | Macros page | macros.mjs | macros-all-macros, -reporter, -anonymous |
 | `{{new_page}}` | "New page" link on the Macros page | macros.mjs | macros-new-page-form, -new-page-created |
 | invalid macro arguments | Errors page | macros.mjs | macros-errors |
+| footnotes of previews stay in that preview (`{{fn}}`/`{{fnlist}}` without a wiki page) | issue preview as manager, then as reporter; new wiki page preview | footnotes.mjs | footnotes-issue-preview-manager, -issue-preview-reporter, -wiki-new-page-preview |
 | macros and private projects, escaping of arguments | Leaks and Unsafe pages | macro_security.mjs | macro_security-member, -reporter-no-leak, -anonymous-no-leak, -unsafe-escaped |
 | Header and Footer pages | any wiki page | layout.mjs | layout-commonmark, -header-page |
 | StyleSheet page (`/projects/:id/wiki_extensions/stylesheet.css`) | head of every wiki page | layout.mjs | layout-commonmark, -outsider-stylesheet |
@@ -289,6 +290,28 @@ root (`$SUDO -u postgres` with empty `$SUDO`); `start_server.sh` wrote `configur
 `default:`, so the test environment also delivered mail to files (fixed in this repo's copy, finding H6); the
 server database defaults to `redmine_e2e` even for another checkout (set `RMP_SERVER_DB_NAME`);
 `redmine_clone.sh` with a second checkout inside the plugin copies the first checkout into it.
+
+## Footnotes per render (2026-10-29)
+
+Jan's decision before the move from Passenger to multi-threaded Puma. `{{fn}}` on text without a wiki
+page (issue, news and new-page previews, project descriptions) appended to
+`WikiExtensionsFootnote.preview_page`, one `WikiPage` for the whole process: under Puma one user's
+footnote could appear in another user's page, and even single-threaded footnotes without `{{fnlist}}`
+carried into the next render. Fixed in `68ab894`: the list is an instance variable of the view that
+renders the text (the object that already carries `@project` for the macros), so it lives for one render
+of one request, never shared between threads, with no reset hook. Chosen over
+`ActiveSupport::CurrentAttributes` because it needs no new class and does not depend on the executor
+resetting it (mails, jobs, console). Real wiki pages keep their own page object; `{{fnlist}}` output and
+numbering are unchanged. The singleton and the `WikiController#render` override that only cleared it
+are removed.
+
+Tests: `test/functional/wiki_extensions_footnote_test.rb` (5 tests). On the old code the two previews in a
+row and the two interleaved threads fail (the leaked footnote shows up as `*1`, one's own as `*2`); the
+three output tests pass on both. Suite before/after: 108 runs, 361 assertions to 113 runs, 398
+assertions, 0 failures, on PostgreSQL 16.15 and MariaDB 10.11.14 (core `578730ad3`). e2e
+`footnotes.mjs` on the production-mode server: on the old code the reporter's preview listed
+"draft: manager private note" (assertion failed); with the fix the full set is 10 scripts, 77
+screenshots, 0 problems. OpenAI review (`docs/reviews/openai-2026-10-29-062afd7.md`): no findings.
 
 ## Findings not fixed (pre-existing, upstream behaviour; written down, not changed)
 
