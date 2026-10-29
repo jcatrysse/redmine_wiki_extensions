@@ -17,13 +17,9 @@
 require "redmine"
 
 # Provides the +fn+ and +fnlist+ wiki macros for footnote support.
+# Text without a wiki page (previews, project descriptions) keeps its footnotes
+# on the view that renders it, so they never reach another request or thread.
 module WikiExtensionsFootnote
-  # Returns a singleton WikiPage used as a scratch space during preview rendering.
-  # @return [WikiPage]
-  def WikiExtensionsFootnote.preview_page
-    @@preview_page ||= WikiPage.new
-  end
-
   Redmine::WikiFormatting::Macros.register do
     desc "Create a footnote.\n\n" +
       " \{{fn(word, description)}}"
@@ -33,8 +29,7 @@ module WikiExtensionsFootnote
       word = args.shift
       description = args.join(",").strip
       page = obj.page if obj
-      page = WikiExtensionsFootnote.preview_page unless page
-      data = page.wiki_extension_data
+      data = page ? page.wiki_extension_data : (@wiki_extensions_footnote_data ||= {})
       data[:footnotes] ||= []
       data[:footnotes] << { "word" => word, "description" => description }
 
@@ -53,8 +48,7 @@ module WikiExtensionsFootnote
     macro :fnlist do |obj, _args|
       return nil unless WikiExtensionsUtil.is_enabled?(@project)
       page = obj.page if obj
-      page = WikiExtensionsFootnote.preview_page unless page
-      data = page.wiki_extension_data
+      data = page ? page.wiki_extension_data : (@wiki_extensions_footnote_data ||= {})
       return "" if data[:footnotes].blank? or data[:footnotes].empty?
       o = '<div class="wiki_extensions_fnlist">'
       o << "<hr/>\n"
@@ -66,7 +60,7 @@ module WikiExtensionsFootnote
       }
       o << "</ul>"
       o << "</div>"
-      WikiExtensionsFootnote.preview_page.wiki_extension_data[:footnotes] = []
+      @wiki_extensions_footnote_data[:footnotes] = [] unless page
       return o.html_safe
     end
   end

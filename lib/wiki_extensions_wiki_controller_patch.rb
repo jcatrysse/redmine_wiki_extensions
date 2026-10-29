@@ -24,17 +24,6 @@ end
 
 # Patch that injects wiki page headers, footers, and footnote lists.
 module WikiExtensionsWikiControllerPatch
-  # Overrides render to clear footnote state when rendering a preview.
-  # @param args [Hash, nil]
-  def render(args = nil)
-    if args and @project and WikiExtensionsUtil.is_enabled?(@project) and @content
-      if args.class == Hash and args[:partial] == "common/preview"
-        WikiExtensionsFootnote.preview_page.wiki_extension_data[:footnotes] = []
-      end
-    end
-    super(args)
-  end
-
   # Overrides respond_to to inject header, footer, and footnote list on show.
   def respond_to(&block)
     if @project and WikiExtensionsUtil.is_enabled?(@project) and @content
